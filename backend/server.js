@@ -72,6 +72,10 @@ app.use('/api/post-images', postImagesRoutes)
 app.use('/api/network-kpis', networkKpisRoutes)
 app.use('/api/posts', postsRoutes)
 
+app.use('/', (req, res) => {
+  res.send('Servidor sistema tolko reporting biopappel funcionando')
+})
+
 // Iniciamos el servidor con puerto dinámico (Mejor práctica para Producción)
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
