@@ -7,6 +7,7 @@
   import ContextSection from '@/components/ContextSection.vue'
   import FacebookSection from '@/components/FacebookSection.vue'
   import InstagramSection from '@/components/InstagramSection.vue'
+  import LinkenIdSection from '@/components/LinkenIdSection.vue'
   import BenchmarkSection from '@/components/BenchmarkSection.vue'
   import CustomerServiceSection from '@/components/CustomerServiceSection.vue'
   import FrequentComplainsSection from '@/components/FrequentComplainsSection.vue'
@@ -134,8 +135,9 @@
       <FacebookSection :data="reportData.facebook" />
       <BenchmarkSection :data="reportData.benchmarking" :insights="reportData.benchmarkInsights" />
       <InstagramSection :data="reportData.instagram" />
-      <CustomerServiceSection :data="reportData.customerService" />
-      <FrequentComplainsSection :data="reportData.customerService" />
+      <LinkenIdSection :data="reportData.facebook" />
+      <!-- <CustomerServiceSection :data="reportData.customerService" /> -->
+      <!-- <FrequentComplainsSection :data="reportData.customerService" /> -->
       <NextStepsSection :data="reportData.nextSteps" />
       <ConclusionsSection />
       <ThankYouSection />

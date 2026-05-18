@@ -179,9 +179,9 @@ const getReportData = async (req, res) => {
 
     // 3. REPORT ASSEMBLY
     const fullReport = {
-      metadata: { client: 'Biopappel', title: 'SOCIAL MEDIA REPORT', period: mesDinamico, agency: 'TOLKO' },
+      metadata: { client: 'Bio pappel', title: 'SOCIAL MEDIA REPORT', period: mesDinamico, agency: 'TOLKO' },
       facebook: {
-        username: hootsuiteData?.facebook?.username || 'Biopappel',
+        username: hootsuiteData?.facebook?.username || 'Bio pappel',
         kpis: {
           month: mesDinamico,
           interactions: fbOverview.fb_interactions || 0,

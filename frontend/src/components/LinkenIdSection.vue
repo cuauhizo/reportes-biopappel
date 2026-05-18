@@ -1,13 +1,13 @@
 <template>
   <section class="pdf-page flex flex-col bg-gray-100">
-    <div class="w-full md:h-24 bg-[#1877F2] shrink-0 flex items-center justify-center shadow-inner p-4">
-      <h2 class="text-4xl text-center font-black text-white tracking-widest uppercase">Facebook Metrics</h2>
+    <div class="w-full md:h-24 bg-[#0e76a8] shrink-0 flex items-center justify-center shadow-inner p-4">
+      <h2 class="text-4xl text-center font-black text-white tracking-widest uppercase">LinkedIn Metrics</h2>
     </div>
     <!-- <pre>{{ data }}</pre> -->
     <div class="flex-1 flex flex-col justify-start p-4 w-full">
       <div class="max-w-7xl mx-auto w-full">
-        <h1 class="text-2xl font-bold text-pluxeeBlue">Social Media Report - {{ data.kpis.month }}</h1>
-        <div class="w-full">
+        <!-- <h1 class="text-2xl font-bold text-pluxeeBlue">Social Media Report - {{ data.kpis.month }}</h1> -->
+        <!-- <div class="w-full">
           <div class="max-w-7xl mx-auto py-4">
             <div class="w-full h-48 bg-gray-200 rounded-2xl overflow-hidden relative border-x border-b border-gray-200">
               <div v-if="data.coverImage" class="w-full h-full bg-cover bg-center bg-no-repeat" :style="{ backgroundImage: `url(${data.coverImage})` }"></div>
@@ -16,9 +16,9 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> -->
         <div class="grid grid-cols-12 gap-4">
-          <div class="col-span-12 xl:col-span-9">
+          <div class="col-span-12">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center h-full">
               <KpiCard title="Page Engagement" :value="formatNumber(data.kpis.interactions)" />
               <KpiCard title="Total followers" :value="formatNumber(data.kpis.total_followers)" :diff="data.kpis.followers_diff" />
@@ -33,9 +33,6 @@
               <KpiCard title="Views from followers" :value="formatNumber(data.kpis.page_followers_views)" />
               <KpiCard title="New followers" :value="formatNumber(data.kpis.new_followers)" :diff="data.kpis.new_followers_diff" />
             </div>
-          </div>
-          <div class="col-span-12 xl:col-span-3">
-            <SentimentChart :sentimentData="data.kpis.sentiment" />
           </div>
         </div>
       </div>

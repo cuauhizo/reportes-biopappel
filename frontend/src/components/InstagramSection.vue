@@ -1,7 +1,7 @@
 <template>
   <section class="pdf-page flex flex-col bg-white">
     <div class="w-full md:h-24 bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] shrink-0 flex items-center justify-center shadow-inner p-4">
-      <h2 class="text-4xl text-center font-black text-white tracking-widest uppercase">Instagram Metrics {{ data.username }}</h2>
+      <h2 class="text-4xl text-center font-black text-white tracking-widest uppercase">Instagram Metrics</h2>
     </div>
     <div class="flex-1 flex flex-col justify-center">
       <div class="max-w-7xl mx-auto p-4">
@@ -228,7 +228,7 @@
 
   <section class="pdf-page flex flex-col justify-center bg-gray-100">
     <div class="max-w-7xl mx-auto w-full p-4">
-      <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase keep-with-next">Post metrics Tolko - Biopappel</h2>
+      <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase keep-with-next">Post metrics Tolko - Bio pappel</h2>
       <TagsTable :tags="data.reachByTags" :topPosts="[...(data.topPosts || []), ...(data.topStories || [])]" />
     </div>
   </section>

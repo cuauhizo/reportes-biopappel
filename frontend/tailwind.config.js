@@ -5,7 +5,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        pluxeeBlue: '#221c46',
+        pluxeeBlue: '#2D2A26',
         pluxeeBlueLight: '#17ccf9',
         pluxeeGreen: '#93d50a',
         pluxeeYellow: '#f4cf3e',
