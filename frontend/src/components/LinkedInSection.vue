@@ -20,18 +20,20 @@
         <div class="grid grid-cols-12 gap-4">
           <div class="col-span-12">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center h-full">
-              <KpiCard title="Page Engagement" :value="formatNumber(data.kpis.interactions)" />
+              <KpiCard title="Page Engagement" :value="formatNumber(data.kpis.page_reach)" />
               <KpiCard title="Total followers" :value="formatNumber(data.kpis.total_followers)" :diff="data.kpis.followers_diff" />
-              <KpiCard title="Clicks organic Link" :value="formatNumber(data.kpis.clics)" />
-              <KpiCard title="Post shares" :value="data.kpis.shares" />
-              <!-- <KpiCard title="Responding" :value="data.kpis.responding" /> -->
+              <KpiCard title="Page engagement rate" :value="formatNumber(data.kpis.page_engagements_rate)" />
+              <KpiCard title="Page clicks" :value="formatNumber(data.kpis.page_clicks)" />
               <KpiCard title="Post engagement rate" :value="data.kpis.post_engagement_rate" :diff="data.kpis.post_engagement_rate_diff" />
-              <KpiCard title="Post impressions" :value="formatNumber(data.kpis.post_impressions)" :diff="data.kpis.post_impressions_diff" />
-              <!-- <KpiCard title="Response time" :value="data.kpis.response_time" /> -->
-              <KpiCard title="Page organic reach" :value="formatNumber(data.kpis.page_organic_reach)" />
-              <KpiCard title="Views from non-followers" :value="formatNumber(data.kpis.page_no_followers_views)" />
-              <KpiCard title="Views from followers" :value="formatNumber(data.kpis.page_followers_views)" />
-              <KpiCard title="New followers" :value="formatNumber(data.kpis.new_followers)" :diff="data.kpis.new_followers_diff" />
+              <KpiCard title="Page comments" :value="formatNumber(data.kpis.page_comments)" />
+              <KpiCard title="Posts" :value="formatNumber(data.kpis.posts)" />
+              <KpiCard title="Post comments" :value="formatNumber(data.kpis.post_comments)" />
+              <KpiCard title="Page shares" :value="formatNumber(data.kpis.page_shares)" />
+              <KpiCard title="Post reach" :value="formatNumber(data.kpis.post_reach)" :diff="data.kpis.post_reach_diff" />
+              <KpiCard title="Post reactions" :value="formatNumber(data.kpis.post_reactions)" />
+              <KpiCard title="Page shares" :value="formatNumber(data.kpis.page_shares)" />
+              <KpiCard title="Page engagement" :value="formatNumber(data.kpis.page_engagement)" />
+              <KpiCard title="New followers" :value="formatNumber(data.kpis.net_new_followers)" :diff="data.kpis.net_new_followers_diff" />
             </div>
           </div>
         </div>
@@ -79,7 +81,7 @@
       </div>
     </div>
   </section>
-
+  <pre>{{ data.topPosts }}</pre>
   <template v-if="data.topPosts && data.topPosts.length > 0">
     <section v-for="(grupo, index) in agruparPorFilas(data.topPosts, 10)" :key="'pagina-post-' + index" class="pdf-page flex flex-col justify-start bg-gray-50">
       <div class="max-w-7xl mx-auto p-4 w-full">
@@ -99,12 +101,12 @@
     <div class="max-w-7xl mx-auto w-full">
       <h2 class="text-2xl font-black text-pluxeeBlue mb-2 uppercase">Post Metrics</h2>
       <div class="bg-gray-50 rounded-2xl p-8 text-center border border-gray-100 mt-6">
-        <p class="text-gray-500 font-medium">No se encontraron publicaciones en Facebook para este periodo.</p>
+        <p class="text-gray-500 font-medium">No se encontraron publicaciones en LinkedIn para este periodo.</p>
       </div>
     </div>
   </section>
 
-  <TrendsFacebookSection :data="data" />
+  <TrendsLinkedinSection :data="data" />
 
   <section class="pdf-page flex flex-col justify-center bg-gray-100">
     <div class="max-w-7xl mx-auto w-full p-4">
@@ -117,7 +119,7 @@
 <script setup>
   import PostCard from '@/components/PostCard.vue'
   import SentimentChart from '@/components/SentimentChart.vue'
-  import TrendsFacebookSection from '@/components/TrendsFacebookSection.vue'
+  import TrendsLinkedinSection from '@/components/TrendsLinkedinSection.vue'
   import TagsTable from './TagsTable.vue'
   import KpiCard from '@/components/KpiCard.vue'
   import FollowerGrowthChart from '@/components/FollowerGrowthChart.vue'

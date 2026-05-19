@@ -13,6 +13,7 @@
           class="px-4 py-1.5 rounded-md font-bold text-sm transition-colors">
           Instagram
         </button>
+        <button @click="redSeleccionada = 'li'" :class="redSeleccionada === 'li' ? 'bg-[#0e76a8]  text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'" class="px-4 py-1.5 rounded-md font-bold text-sm transition-colors">LinkedIn</button>
       </div>
     </div>
 

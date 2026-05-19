@@ -33,9 +33,9 @@ const processCsvUpload = async (req, res) => {
         // ==========================================
         // 1. PROCESAR MÉTRICAS DE POSTS (FB e IG)
         // ==========================================
-        if (type === 'fb_posts' || type === 'ig_posts') {
-          const tabla = type === 'fb_posts' ? 'fb_posts_metrics' : 'ig_posts_metrics'
-          const prefijo = type === 'fb_posts' ? 'fb' : 'ig'
+        if (type === 'fb_posts' || type === 'ig_posts' || type === 'li_posts') {
+          const tabla = type === 'fb_posts' ? 'fb_posts_metrics' : type === 'ig_posts' ? 'ig_posts_metrics' : 'li_posts_metrics'
+          const prefijo = type === 'fb_posts' ? 'fb' : type === 'ig_posts' ? 'ig' : 'li'
 
           await connection.query(`DELETE FROM ${tabla} WHERE periodo = ?`, [periodo])
 
@@ -68,6 +68,28 @@ const processCsvUpload = async (req, res) => {
                   [id, periodo, mensaje, tipoPost, fecha, alcance, interacciones, visitas, likes, saves, shares, permalink, tags],
                 )
               }
+            }
+
+            if (type === 'li_posts') {
+              const mensaje = row['Post Message'] || ''
+              const id = generarIdEstable(row, prefijo)
+              const tipoPost = row['Post Type'] || 'POST'
+              const fecha = row['Date (GMT)'] || null
+              const impresiones = parseInt(row['Impressions']) || 0
+              const alcance = parseInt(row['Reach']) || 0
+              const interacciones = parseInt(row['Engagement']) || 0 // O sumando las demás
+              const reacciones = parseInt(row['Reactions']) || 0
+              const comentarios = parseInt(row['Comments']) || 0
+              const shares = parseInt(row['Shares']) || 0
+              const clics = parseInt(row['Clicks']) || 0
+              const permalink = row['LinkedIn Post URL'] || ''
+              const tags = row['Post Tags'] || ''
+
+              await connection.query(
+                `INSERT INTO li_posts_metrics (id, periodo, mensaje, tipo_post, fecha, impresiones, alcance, interacciones, reacciones, comentarios, shares, clics, permalink, tags) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE impresiones=VALUES(impresiones)`,
+                [id, periodo, mensaje, tipoPost, fecha, impresiones, alcance, interacciones, reacciones, comentarios, shares, clics, permalink, tags],
+              )
             }
           }
         }
@@ -103,8 +125,9 @@ const processCsvUpload = async (req, res) => {
         // ==========================================
         // 3. PROCESAR OVERVIEWS (Métricas globales, Histórico Diario y Ciudades)
         // ==========================================
-        else if (type === 'fb_overview' || type === 'ig_overview') {
-          const red_social = type === 'fb_overview' ? 'fb' : 'ig'
+        else if (type === 'fb_overview' || type === 'ig_overview' || type === 'li_overview') {
+          // const red_social = type === 'fb_overview' ? 'fb' : 'ig'
+          const red_social = type === 'fb_overview' ? 'fb' : type === 'ig_overview' ? 'ig' : 'li'
 
           await connection.query('DELETE FROM network_kpis WHERE periodo = ? AND red_social = ?', [periodo, red_social])
           await connection.query('DELETE FROM historical_followers WHERE periodo = ? AND red_social = ?', [periodo, red_social])
@@ -200,6 +223,47 @@ const processCsvUpload = async (req, res) => {
                   if (f > 0) cities.push({ name: cityName.trim(), followers: f })
                 })
               }
+            }
+
+            if (type === 'li_overview') {
+              const keyTotalFollowers = keys.find(k => k.includes('Seguidores (Overall aggregated value') && !k.includes('This column'))
+              const keyFollowersForTable = keys.find(k => k.includes('Seguidores (This column might contain'))
+
+              // A. Histórico Diario
+              if (dateVal && !dateVal.toLowerCase().includes('total')) {
+                let daily = parseInt(row[keyFollowersForTable]) || parseInt(row[keyTotalFollowers]) || 0
+                if (daily > 0) historical.push({ fecha: dateVal, followers: daily })
+              }
+
+              // Guardar en historical_followers igual que FB e IG
+              if (keyTotalFollowers && row[keyTotalFollowers]) {
+                kpis = {
+                  total_followers: parseInt(row[keyTotalFollowers]) || 0,
+                  new_followers: parseInt(row[keys.find(k => k.includes('Nuevos seguidores netos'))]) || 0,
+                  engagement_rate: parseFloat(row[keys.find(k => k.includes('Porcentaje de interacción con publicación'))]) || 0,
+
+                  li_page_reach: parseFloat(row[keys.find(k => k.includes('Alcance de página (Overall aggregated value'))]) || 0,
+                  li_page_engagements_rate: parseFloat(row[keys.find(k => k.includes('Porcentaje de interacción con la página (Overall aggregated value'))]) || 0,
+                  li_page_clicks: parseInt(row[keys.find(k => k.includes('Clics en página'))]) || 0,
+                  li_page_comments: parseInt(row[keys.find(k => k.includes('Comentarios de página'))]) || 0,
+                  li_posts: parseInt(row[keys.find(k => k.includes('Publicaciones'))]) || 0,
+                  li_post_comments: parseInt(row[keys.find(k => k.includes('Comentarios en publicación'))]) || 0,
+                  li_page_shares: parseInt(row[keys.find(k => k.includes('Comparticiones de página'))]) || 0,
+                  li_post_reach: parseInt(row[keys.find(k => k.includes('Alcance de publicaciones'))]) || 0,
+                  li_post_video_viewers: parseInt(row[keys.find(k => k.includes('Espectadores de vídeos de publicaciones'))]) || 0,
+                  li_post_reactions: parseInt(row[keys.find(k => k.includes('Reacciones a publicaciones'))]) || 0,
+                  li_page_engagement: parseInt(row[keys.find(k => k.includes('Interacción con páginas'))]) || 0,
+                }
+
+                const cityKeys = keys.filter(k => k.includes('Seguidores -'))
+                cityKeys.forEach(k => {
+                  let cityName = k.includes('Other') ? 'Other' : k.split('Seguidores - ')[1]?.split(' (')[0] || ''
+                  if (cityName !== 'Other' && cityName.includes(',')) cityName = `${cityName.split(',')[0].trim()}, ${cityName.split(',')[1].trim()}`
+                  const f = parseInt(row[k]) || 0
+                  if (f > 0) cities.push({ name: cityName.trim(), followers: f })
+                })
+              }
+              // Guardar los totales en kpis = { ... }
             }
           }
 

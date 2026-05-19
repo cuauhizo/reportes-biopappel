@@ -89,7 +89,7 @@
           </div>
         </div>
 
-        <div>
+        <div class="mb-12">
           <div class="flex items-center gap-3 mb-6 border-b border-gray-200 pb-3">
             <div class="w-10 h-10 bg-gradient-to-tr from-yellow-400 to-fuchsia-600 rounded-full flex items-center justify-center text-white shadow-sm">
               <i class="fab fa-instagram text-lg"></i>
@@ -128,6 +128,56 @@
                     </svg>
                     <p class="mb-2 text-sm text-gray-500 text-center">
                       <span class="font-semibold text-[#e1306c]">Arrastra tu archivo aquí</span>
+                      <br />
+                      o haz clic para explorar
+                    </p>
+                  </div>
+                  <input :id="'dropzone-' + file.id" type="file" class="hidden" accept=".csv" @change="onFileSelect(file.id, $event)" />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-12">
+          <div class="flex items-center gap-3 mb-6 border-b border-gray-200 pb-3">
+            <div class="w-10 h-10 bg-[#0e76a8] rounded-full flex items-center justify-center text-white shadow-sm">
+              <i class="fab fa-facebook-f text-lg"></i>
+            </div>
+            <h2 class="text-2xl font-black text-gray-800 uppercase">Archivos de LinkedId</h2>
+          </div>
+
+          <p class="text-gray-500 my-2">Actualiza los archivos CSV arrastrándolos a su categoría correspondiente.</p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div v-for="file in linkedinFiles" :key="file.id" class="bg-white p-6 rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition">
+              <div class="flex items-center mb-4">
+                <span class="text-2xl mr-3">{{ file.icon }}</span>
+                <h3 class="text-lg font-bold text-pluxeeBlue">{{ file.title }}</h3>
+              </div>
+
+              <div
+                class="relative flex items-center justify-center w-full"
+                @dragover.prevent="dragState[file.id] = true"
+                @dragenter.prevent="dragState[file.id] = true"
+                @dragleave.prevent="dragState[file.id] = false"
+                @drop.prevent="onDrop(file.id, $event)">
+                <label
+                  :for="'dropzone-' + file.id"
+                  :class="[
+                    'flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors duration-200',
+                    dragState[file.id] ? 'bg-blue-50 border-[#0e76a8] scale-[1.02]' : 'bg-gray-50 border-gray-300 hover:bg-blue-50 hover:border-[#0e76a8]',
+                  ]">
+                  <div class="flex flex-col items-center justify-center pt-5 pb-6 pointer-events-none">
+                    <svg :class="dragState[file.id] ? 'text-[#0e76a8]' : 'text-gray-400'" class="w-8 h-8 mb-2 transition-colors" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                      <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                    </svg>
+                    <p class="mb-2 text-sm text-gray-500 text-center">
+                      <span class="font-semibold text-[#0e76a8]">Arrastra tu archivo aquí</span>
                       <br />
                       o haz clic para explorar
                     </p>
@@ -199,6 +249,8 @@
     { id: 'ig_overview', title: 'Instagram: Overview KPIs', icon: '📸' },
     { id: 'ig_posts', title: 'Instagram: Métricas de Posts', icon: '📱' },
     { id: 'ig_sentiment', title: 'Instagram: Sentimientos', icon: '❤️' },
+    { id: 'li_overview', title: 'LinkedIn: Overview KPIs', icon: '💼' },
+    { id: 'li_posts', title: 'LinkedIn: Métricas de Posts', icon: '📝' },
   ]
 
   const facebookFiles = computed(() => {
@@ -207,6 +259,10 @@
 
   const instagramFiles = computed(() => {
     return fileCategories.filter(file => file.id.includes('ig') || file.id.includes('instagram'))
+  })
+
+  const linkedinFiles = computed(() => {
+    return fileCategories.filter(file => file.id.includes('li') || file.id.includes('linkedin'))
   })
 
   //  LÓGICA CENTRALIZADA DE SUBIDA

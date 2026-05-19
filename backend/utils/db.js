@@ -162,6 +162,26 @@ async function initDB() {
       )
     `)
 
+    // Posts de LinkedIn
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS li_posts_metrics (
+        id VARCHAR(100) PRIMARY KEY,
+        periodo VARCHAR(7) NOT NULL,
+        mensaje TEXT,
+        tipo_post VARCHAR(50),
+        fecha DATETIME,
+        impresiones INT DEFAULT 0,
+        alcance INT DEFAULT 0,
+        interacciones INT DEFAULT 0,
+        reacciones INT DEFAULT 0,
+        comentarios INT DEFAULT 0,
+        shares INT DEFAULT 0,
+        clics INT DEFAULT 0,
+        permalink TEXT,
+        tags TEXT
+      )
+    `)
+
     // Resumen de Sentimientos (Inbound)
     await connection.query(`
       CREATE TABLE IF NOT EXISTS inbound_sentiment (
@@ -179,12 +199,12 @@ async function initDB() {
         id INT AUTO_INCREMENT PRIMARY KEY,
         periodo VARCHAR(7) NOT NULL,
         red_social VARCHAR(10) NOT NULL, -- 'fb' o 'ig'
-        
+
         -- Datos compartidos
         total_followers INT DEFAULT 0,
         new_followers INT DEFAULT 0,
         engagement_rate DECIMAL(5,2) DEFAULT 0.00,
-        
+
         -- Datos exclusivos de FB
         fb_interactions INT DEFAULT 0,
         fb_clics INT DEFAULT 0,
@@ -195,7 +215,7 @@ async function initDB() {
         fb_page_no_followers_views INT DEFAULT 0,
         fb_page_followers_views INT DEFAULT 0,
         fb_time_visualization VARCHAR(50),
-        
+
         -- Datos exclusivos de IG
         ig_story_taps_forward INT DEFAULT 0,
         ig_story_taps_back INT DEFAULT 0,
@@ -207,7 +227,21 @@ async function initDB() {
         ig_reach_photo INT DEFAULT 0,
         ig_reach_reel INT DEFAULT 0,
         ig_reach_story INT DEFAULT 0,
-        
+
+        -- Datos exclusivos de LI
+        li_page_reach INT DEFAULT 0,
+        li_page_engagements_rate DECIMAL(5,2) DEFAULT 0.00,
+        li_page_clicks INT DEFAULT 0,
+        li_post_engagement_rate DECIMAL(5,2) DEFAULT 0.00,
+        li_page_comments INT DEFAULT 0,
+        li_posts INT DEFAULT 0,
+        li_post_comments INT DEFAULT 0,
+        li_page_shares INT DEFAULT 0,
+        li_post_reach INT DEFAULT 0,
+        li_post_video_viewers INT DEFAULT 0,
+        li_post_reactions INT DEFAULT 0,
+        li_page_engagement INT DEFAULT 0,
+
         UNIQUE KEY unique_period_network (periodo, red_social)
       )
     `)
@@ -242,7 +276,7 @@ async function initDB() {
   }
 }
 
-// initDB()
+initDB()
 
 // Agrega esto en backend/utils/db.js antes de getTokens
 
