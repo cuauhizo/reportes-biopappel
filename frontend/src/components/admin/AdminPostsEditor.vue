@@ -106,7 +106,8 @@
 
       // Asignamos la imagen a cada post
       posts.value = postsData.map(p => {
-        let defaultImg = redSeleccionada.value === 'fb' ? 'https://placehold.co/150x150/1877F2/ffffff?text=FB' : 'https://placehold.co/150x150/e1306c/ffffff?text=IG'
+        let defaultImg =
+          redSeleccionada.value === 'fb' ? 'https://placehold.co/150x150/1877F2/ffffff?text=FB' : redSeleccionada.value === 'li' ? 'https://placehold.co/150x150/0a66c2/ffffff?text=LI' : 'https://placehold.co/150x150/e1306c/ffffff?text=IG'
 
         if (p.tipo_post && p.tipo_post.toUpperCase().includes('STORY')) {
           defaultImg = 'https://placehold.co/150x150/fcb045/ffffff?text=Story'

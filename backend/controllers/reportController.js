@@ -63,7 +63,7 @@ const getReportData = async (req, res) => {
     const promises = [
       pool.query('SELECT * FROM fb_posts_metrics WHERE periodo = ? ORDER BY visitas DESC', [periodId]), // 0
       pool.query('SELECT * FROM ig_posts_metrics WHERE periodo = ? ORDER BY visitas DESC', [periodId]), // 1
-      pool.query('SELECT * FROM li_posts_metrics WHERE periodo = ? ORDER BY visitas DESC', [periodId]), // 2
+      pool.query('SELECT * FROM li_posts_metrics WHERE periodo = ? ORDER BY impresiones DESC', [periodId]), // 2
       pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [periodId, 'fb']), // 3
       pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [periodId, 'ig']), // 4
       pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [periodId, 'li']), // 5
@@ -163,12 +163,14 @@ const getReportData = async (req, res) => {
         id: p.id,
         link: p.permalink,
         type: tipo.includes('STORY') ? 'STORY' : tipo,
-        views: p.visitas,
-        reach: p.alcance,
-        interactions: p.interacciones,
+        // 🚀 Si es LinkedIn (p.impresiones), si es FB/IG (p.visitas)
+        views: p.visitas !== undefined ? p.visitas : p.impresiones || 0,
+        reach: p.alcance || 0,
+        interactions: p.interacciones || 0,
         saved: red === 'fb' ? p.shares : p.saves || 0,
-        likes: p.likes,
-        shares: p.shares,
+        // 🚀 Si es LinkedIn (p.reacciones), si es FB/IG (p.likes)
+        likes: p.likes !== undefined ? p.likes : p.reacciones || 0,
+        shares: p.shares || 0,
         picture: customImg ? customImg.image_url : defaultImg,
         img: customImg ? customImg.image_url : defaultImg,
         postPermalink: p.permalink,

@@ -134,6 +134,76 @@
       </div>
     </div>
 
+    <template v-if="redSeleccionada === 'li'">
+      <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest mb-3 mt-2 border-b pb-2">Audiencia</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Seguidores Totales</label>
+          <input v-model="formData.total_followers" type="number" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-[#0a66c2] outline-none transition-colors" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Nuevos Seguidores</label>
+          <input v-model="formData.new_followers" type="number" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-[#0a66c2] outline-none transition-colors" />
+        </div>
+      </div>
+
+      <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest mb-3 border-b pb-2">Métricas de la Página</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Alcance (Reach)</label>
+          <input v-model="formData.li_page_reach" type="number" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-[#0a66c2] outline-none transition-colors" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Interacciones</label>
+          <input v-model="formData.li_page_engagement" type="number" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-[#0a66c2] outline-none transition-colors" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Engagement Rate (%)</label>
+          <input v-model="formData.li_page_engagements_rate" type="number" step="0.01" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-[#0a66c2] outline-none transition-colors" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Clics</label>
+          <input v-model="formData.li_page_clicks" type="number" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-[#0a66c2] outline-none transition-colors" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Comentarios</label>
+          <input v-model="formData.li_page_comments" type="number" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-[#0a66c2] outline-none transition-colors" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Compartidos (Shares)</label>
+          <input v-model="formData.li_page_shares" type="number" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-[#0a66c2] outline-none transition-colors" />
+        </div>
+      </div>
+
+      <h3 class="text-sm font-black text-gray-400 uppercase tracking-widest mb-3 border-b pb-2">Métricas de Publicaciones</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-2">
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Total de Posts</label>
+          <input v-model="formData.li_posts" type="number" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-[#0a66c2] outline-none transition-colors" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Alcance (Reach)</label>
+          <input v-model="formData.li_post_reach" type="number" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-[#0a66c2] outline-none transition-colors" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Engagement Rate (%)</label>
+          <input v-model="formData.li_post_engagement_rate" type="number" step="0.01" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-[#0a66c2] outline-none transition-colors" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Reacciones</label>
+          <input v-model="formData.li_post_reactions" type="number" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-[#0a66c2] outline-none transition-colors" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Comentarios</label>
+          <input v-model="formData.li_post_comments" type="number" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-[#0a66c2] outline-none transition-colors" />
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-gray-700 mb-1">Views de Video</label>
+          <input v-model="formData.li_post_video_viewers" type="number" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:border-[#0a66c2] outline-none transition-colors" />
+        </div>
+      </div>
+    </template>
+
     <div v-if="datosCargados" class="mt-6 flex justify-end">
       <button @click="guardarCambios" :disabled="isSaving" class="bg-gray-800 text-white px-8 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
         <Save class="w-5 h-5" />
