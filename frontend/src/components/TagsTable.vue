@@ -23,6 +23,7 @@
       <div class="bg-gray-50 rounded-xl p-5 border border-gray-100 flex flex-col">
         <h4 class="font-black text-gray-700 uppercase text-sm mb-4 border-b border-gray-200 pb-2">Top del Periodo</h4>
         <div v-if="topPosts && topPosts.length > 0" class="space-y-4">
+          <pre>{{ topPosts.slice(0, 1) }}</pre>
           <div v-for="(post, index) in topPosts.slice(0, 3)" :key="post.id" class="flex flex-col sm:flex-row gap-4 items-center bg-white p-3 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
             <span class="font-black text-xl text-gray-300 w-4">{{ index + 1 }}</span>
 

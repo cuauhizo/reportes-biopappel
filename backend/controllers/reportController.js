@@ -163,12 +163,10 @@ const getReportData = async (req, res) => {
         id: p.id,
         link: p.permalink,
         type: tipo.includes('STORY') ? 'STORY' : tipo,
-        // 🚀 Si es LinkedIn (p.impresiones), si es FB/IG (p.visitas)
         views: p.visitas !== undefined ? p.visitas : p.impresiones || 0,
         reach: p.alcance || 0,
         interactions: p.interacciones || 0,
-        saved: red === 'fb' ? p.shares : p.saves || 0,
-        // 🚀 Si es LinkedIn (p.reacciones), si es FB/IG (p.likes)
+        saved: p.shares || 0,
         likes: p.likes !== undefined ? p.likes : p.reacciones || 0,
         shares: p.shares || 0,
         picture: customImg ? customImg.image_url : defaultImg,
@@ -287,6 +285,7 @@ const getReportData = async (req, res) => {
         },
         topCities: liCities,
         topPosts: finalTopPostsLi,
+        trendPosts: trendPostsLi,
         reachByTags: liTags,
       },
       benchmarking: dbCompetitors,

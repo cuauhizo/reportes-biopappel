@@ -16,7 +16,7 @@
         <button @click="redSeleccionada = 'li'" :class="redSeleccionada === 'li' ? 'bg-[#0e76a8]  text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'" class="px-4 py-1.5 rounded-md font-bold text-sm transition-colors">LinkedIn</button>
       </div>
     </div>
-
+    <!-- <pre>{{ posts.slice(0, 1) }}</pre> -->
     <div v-if="posts.length === 0" class="text-center py-10 bg-gray-50 rounded-xl border border-dashed border-gray-300">
       <p class="text-gray-500 font-medium">
         No se encontraron posts de {{ redSeleccionada.toUpperCase() }} para el periodo
@@ -34,10 +34,11 @@
             <th class="pb-2 w-20 text-center">Vistas</th>
             <th class="pb-2 w-20 text-center">Alcance</th>
             <th class="pb-2 w-20 text-center">Interacc.</th>
-            <th class="pb-2 w-20 text-center">Likes</th>
+            <!-- <th class=" pb-2 w-20 text-center">Likes</th> -->
             <th class="pb-2 w-20 text-center">Shares</th>
-            <th v-if="redSeleccionada === 'ig'" class="pb-2 w-20 text-center">Saves</th>
-            <th class="pb-2 text-center w-16">Acción</th>
+            <th v-if="redSeleccionada === 'ig' || redSeleccionada === 'fb'" class="pb-2 w-20 text-center">Saves</th>
+            <th v-else class="pb-2 w-20 text-center">Comentarios</th>
+            <th class="text-black pb-2 text-center w-16">Acción</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
@@ -62,13 +63,19 @@
             <td class="py-3 px-1 align-top">
               <input v-model="post.tags" type="text" placeholder="#Tolko, #Trend..." class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-xs font-bold text-blue-700 bg-blue-50" />
             </td>
-
-            <td class="py-3 px-1 align-top"><input v-model="post.visitas" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" /></td>
+            <td class="py-3 px-1 align-top">
+              <input v-if="redSeleccionada === 'li'" v-model="post.impresiones" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
+              <input v-else v-model="post.visitas" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
+            </td>
             <td class="py-3 px-1 align-top"><input v-model="post.alcance" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" /></td>
             <td class="py-3 px-1 align-top"><input v-model="post.interacciones" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" /></td>
-            <td class="py-3 px-1 align-top"><input v-model="post.likes" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" /></td>
+            <!-- <td class=" py-3 px-1 align-top"><input v-model="post.likes" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" /></td> -->
             <td class="py-3 px-1 align-top"><input v-model="post.shares" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" /></td>
-            <td v-if="redSeleccionada === 'ig'" class="py-3 px-1 align-top"><input v-model="post.saves" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" /></td>
+            <td class="py-3 px-1 align-top">
+              <input v-if="redSeleccionada === 'li'" v-model="post.comentarios" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
+              <input v-else-if="redSeleccionada === 'ig'" v-model="post.shares" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
+              <input v-else v-model="post.shares" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
+            </td>
 
             <td class="py-3 text-center align-top">
               <button @click="guardarPost(post)" :disabled="isSaving" class="bg-gray-800 text-white p-2 rounded-lg hover:bg-black transition-transform active:scale-95 disabled:opacity-50" title="Guardar cambios"><Save class="w-5 h-5" /></button>

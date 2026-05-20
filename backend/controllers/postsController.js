@@ -22,7 +22,9 @@ const getPosts = async (req, res) => {
 const updatePost = async (req, res) => {
   const { id } = req.params
   const post = req.body
-  const red_social = req.body.red_social || (id.startsWith('fb_') ? 'fb' : id.startsWith('li_') ? 'li' : 'ig') // Autodetectar red social
+  // const red_social = req.body.red_social || (id.startsWith('fb_') ? 'fb' : id.startsWith('li_') ? 'li' : 'ig') // Autodetectar red social
+  // const red_social = req.body.red_social || (id.includes('_fb_') ? 'fb' : id.includes('_li_') ? 'li' : 'ig')
+  const red_social = req.body.red_social || (id.includes('_fb_') ? 'fb' : id.includes('_li_') ? 'li' : id.includes('_ig_') ? 'ig' : 'ig')
 
   try {
     let query = ''
@@ -35,17 +37,17 @@ const updatePost = async (req, res) => {
                WHERE id = ?`
       params = [post.impresiones, post.alcance, post.clics, post.reacciones, post.comentarios, post.shares, post.tags, id]
     } else if (red_social === 'ig') {
-      // Consulta para Instagram
+      // 🚀 CORRECCIÓN: Usamos 'shares' en lugar de 'saves' porque así se llama la columna en MySQL
       query = `UPDATE ig_posts_metrics 
-               SET vistas = ?, alcance = ?, interacciones = ?, likes = ?, saves = ?, tags = ? 
+               SET visitas = ?, alcance = ?, interacciones = ?, likes = ?, shares = ?, tags = ? 
                WHERE id = ?`
-      params = [post.vistas, post.alcance, post.interacciones, post.likes, post.saves, post.tags, id]
+      params = [post.visitas, post.alcance, post.interacciones, post.likes, post.shares, post.tags, id]
     } else {
       // Consulta para Facebook
       query = `UPDATE fb_posts_metrics 
-               SET vistas = ?, alcance = ?, interacciones = ?, likes = ?, shares = ?, tags = ? 
+               SET visitas = ?, alcance = ?, interacciones = ?, likes = ?, shares = ?, tags = ? 
                WHERE id = ?`
-      params = [post.vistas, post.alcance, post.interacciones, post.likes, post.shares, post.tags, id]
+      params = [post.visitas, post.alcance, post.interacciones, post.likes, post.shares, post.tags, id]
     }
 
     await pool.query(query, params)

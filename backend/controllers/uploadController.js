@@ -4,16 +4,26 @@ const csv = require('csv-parser')
 const { Readable } = require('stream')
 
 // Generador de IDs únicos para posts
-const generarIdEstable = (postExcel, prefijo) => {
+// 🚀 FIX 2: ID blindado contra solapamiento de fechas y multi-idioma
+const generarIdEstable = (postExcel, prefijo, periodo) => {
   const keys = Object.keys(postExcel)
-  const idKey = keys.find(k => k.toLowerCase().includes('post id') || k.toLowerCase().trim() === 'id')
-  if (idKey && postExcel[idKey]) return String(postExcel[idKey]).trim()
+  const idKey = keys.find(k => k.toLowerCase().includes('post id') || k.toLowerCase().trim() === 'id' || k.toLowerCase().includes('id de pub'))
 
-  const link = postExcel['Post URL'] || postExcel.postPermalink || postExcel['Post Permalink'] || ''
-  if (link) return prefijo + '_' + link.replace(/[^a-zA-Z0-9]/g, '').slice(-15)
+  let idGenerado = ''
+  if (idKey && postExcel[idKey]) {
+    idGenerado = String(postExcel[idKey]).trim()
+  } else {
+    const link = postExcel['Post URL'] || postExcel.postPermalink || postExcel['Post Permalink'] || postExcel['Enlace permanente'] || ''
+    if (link) {
+      idGenerado = link.replace(/[^a-zA-Z0-9]/g, '').slice(-15)
+    } else {
+      const texto = postExcel.mensaje || postExcel['Post Message'] || postExcel['Message'] || postExcel['Mensaje'] || 'sin_texto'
+      idGenerado = texto.replace(/[^a-zA-Z0-9]/g, '').substring(0, 20)
+    }
+  }
 
-  const texto = postExcel.mensaje || postExcel['Post Message'] || postExcel['Message'] || 'sin_texto'
-  return prefijo + '_' + texto.replace(/[^a-zA-Z0-9]/g, '').substring(0, 20)
+  // Forzamos que el ID incluya el mes y la red social siempre
+  return `${periodo}_${prefijo}_${idGenerado}`
 }
 
 const processCsvUpload = async (req, res) => {
@@ -34,17 +44,31 @@ const processCsvUpload = async (req, res) => {
         // 1. PROCESAR MÉTRICAS DE POSTS (FB e IG)
         // ==========================================
         if (type === 'fb_posts' || type === 'ig_posts' || type === 'li_posts') {
-          const tabla = type === 'fb_posts' ? 'fb_posts_metrics' : type === 'ig_posts' ? 'ig_posts_metrics' : 'li_posts_metrics'
-          const prefijo = type === 'fb_posts' ? 'fb' : type === 'ig_posts' ? 'ig' : 'li'
+          let prefijo = 'fb'
+          let tabla = 'fb_posts_metrics'
+
+          if (type === 'ig_posts') {
+            prefijo = 'ig'
+            tabla = 'ig_posts_metrics'
+          } else if (type === 'li_posts') {
+            prefijo = 'li'
+            tabla = 'li_posts_metrics'
+          }
 
           await connection.query(`DELETE FROM ${tabla} WHERE periodo = ?`, [periodo])
 
           for (const row of results) {
+            // 🚀 FIX 1: Evitar duplicados ignorando las fotos hijas de los carruseles/documentos
+            const tipoPostStr = String(row['Post Type'] || row['Tipo de publicación'] || 'POST').toUpperCase()
+            if (tipoPostStr.includes('ITEM')) {
+              continue // Salta esta iteración, no lo guarda en la BD
+            }
+
             const mensaje = row['POST MESSAGE'] || row['Post Message'] || ''
             const tipoPost = row['POST TYPE'] || row['Post Type'] || ''
 
             if (mensaje || tipoPost.toUpperCase().includes('STORY')) {
-              const id = generarIdEstable(row, prefijo)
+              const id = generarIdEstable(row, prefijo, periodo)
               const fecha = row['DATE (GMT)'] || row['Date (GMT)'] || null
               const alcance = parseInt(row['REACH'] || row['Reach'] || 0)
               const interacciones = parseInt(row['ENGAGEMENT'] || row['Engagement'] || 0)
@@ -60,7 +84,7 @@ const processCsvUpload = async (req, res) => {
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE visitas=VALUES(visitas)`,
                   [id, periodo, mensaje, tipoPost, fecha, alcance, interacciones, visitas, likes, shares, permalink, tags],
                 )
-              } else {
+              } else if (type === 'ig_posts') {
                 const saves = parseInt(row['SAVES'] || row['Saves'] || 0)
                 await connection.query(
                   `INSERT INTO ig_posts_metrics (id, periodo, mensaje, tipo_post, fecha, alcance, interacciones, visitas, likes, saves, shares, permalink, tags) 
@@ -72,7 +96,7 @@ const processCsvUpload = async (req, res) => {
 
             if (type === 'li_posts') {
               const mensaje = row['Post Message'] || ''
-              const id = generarIdEstable(row, prefijo)
+              const id = generarIdEstable(row, prefijo, periodo)
               const tipoPost = row['Post Type'] || 'POST'
               const fecha = row['Date (GMT)'] || null
               const impresiones = parseInt(row['Impressions']) || 0
@@ -277,7 +301,16 @@ const processCsvUpload = async (req, res) => {
             }
             const cols = Object.keys(kpis)
             const vals = Object.values(kpis)
-            await connection.query(`INSERT INTO network_kpis (periodo, red_social, ${cols.join(', ')}) VALUES (?, ?, ${cols.map(() => '?').join(', ')})`, [periodo, red_social, ...vals])
+
+            // 🚀 FIX 4: ON DUPLICATE KEY UPDATE dinámico
+            const updateStr = cols.map(col => `${col}=VALUES(${col})`).join(', ')
+
+            await connection.query(
+              `INSERT INTO network_kpis (periodo, red_social, ${cols.join(', ')}) 
+               VALUES (?, ?, ${cols.map(() => '?').join(', ')}) 
+               ON DUPLICATE KEY UPDATE ${updateStr}`,
+              [periodo, red_social, ...vals],
+            )
           }
 
           for (const h of historical) {

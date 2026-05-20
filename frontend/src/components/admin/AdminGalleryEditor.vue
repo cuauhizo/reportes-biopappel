@@ -37,7 +37,7 @@
       <Search class="h-5 w-5" />
       {{ isLoadingData ? 'Buscando...' : 'Cargar Posts de este Mes' }}
     </button>
-    <pre>{{ postsParaEditar }}</pre>
+    <!-- <pre>{{ postsParaEditar }}</pre> -->
     <div v-if="postsParaEditar.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
       <div v-for="post in postsParaEditar" :key="post.id" class="bg-white border border-gray-200 p-4 rounded-2xl shadow-sm flex flex-col items-center text-center hover:shadow-md transition">
         <div class="w-full h-40 bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center border border-gray-100">
@@ -60,7 +60,7 @@
 
         <div class="mb-3 w-full flex justify-between items-center">
           <span
-            :class="post.red_social === 'facebook' ? 'text-blue-700 bg-blue-50 border-blue-200' : 'text-pink-700 bg-pink-50 border-pink-200'"
+            :class="post.red_social === 'facebook' ? 'text-blue-700 bg-blue-50 border-blue-200' : post.red_social === 'linkedin' ? 'text-[#0a66c2] bg-[#0a66c2]/10 border-[#0a66c2]/30' : 'text-pink-700 bg-pink-50 border-pink-200'"
             class="border px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider flex items-center gap-1 shadow-sm">
             <span v-if="post.red_social === 'facebook'">FB</span>
             <span v-else-if="post.red_social === 'linkedin'">LI</span>

@@ -124,7 +124,7 @@
       </div>
     </div>
   </section>
-
+  <!-- <pre>{{ data.topPosts }}</pre> -->
   <template v-if="data.topPosts && data.topPosts.length > 0">
     <section v-for="(grupoPosts, index) in agruparPorFilas(data.topPosts, 10)" :key="'pagina-post-ig-' + index" class="pdf-page flex flex-col justify-start bg-gray-50">
       <div class="max-w-7xl mx-auto w-full p-4">
