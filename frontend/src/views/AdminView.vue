@@ -34,10 +34,7 @@
 
       <AdminContextEditor />
       <AdminBenchmarkEditor />
-      <AdminQuejasEditor />
-      <AdminPropuestasEditor />
-      <AdminCompromisosEditor />
-
+      <!-- <AdminQuejasEditor /> -->
       <section class="mb-10">
         <div class="mb-12">
           <div class="flex items-center gap-3 mb-6 border-b border-gray-200 pb-3">
@@ -189,12 +186,13 @@
           </div>
         </div>
       </section>
-
-      <AdminCustomerServiceEditor />
+      <AdminGalleryEditor />
+      <!-- <AdminCustomerServiceEditor /> -->
       <AdminAuditEditor />
       <AdminPostsEditor />
+      <AdminPropuestasEditor />
+      <AdminCompromisosEditor />
       <AdminConclusionEditor />
-      <AdminGalleryEditor />
       <div class="mt-16 mb-20 p-8 bg-red-50 border-2 border-red-200 border-dashed rounded-2xl flex flex-col items-center text-center">
         <h3 class="text-2xl font-black text-red-600 uppercase mb-2 flex items-center">
           <TriangleAlert class="w-7 h-7 mr-3" stroke-width="2.5" />
