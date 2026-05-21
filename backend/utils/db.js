@@ -276,7 +276,7 @@ async function initDB() {
   }
 }
 
-initDB()
+// initDB()
 
 // Agrega esto en backend/utils/db.js antes de getTokens
 
