@@ -9,7 +9,7 @@ export default {
         pluxeeBlueLight: '#17ccf9',
         pluxeeGreen: '#93d50a',
         pluxeeYellow: '#f4cf3e',
-        pluxeePink: '#e2211c',
+        pluxeePink: '#524f9c',
         tolkoRed: '#cc0032',
       },
     },

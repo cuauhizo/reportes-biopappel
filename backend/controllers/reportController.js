@@ -28,7 +28,9 @@ const calculateTags = posts => {
       .split(',')
       .map(t => t.trim())
       .filter(t => t !== '')
-    const metricVal = post.visitas > 0 ? post.visitas : post.alcance
+    // const metricVal = post.visitas > 0 ? post.visitas : post.alcance
+    // const metricVal = post.visitas > 0 ? post.visitas : 0
+    const metricVal = post.visitas || post.impresiones || post.alcance || 0
 
     if (metricVal > 0 && tagsArray.length > 0) {
       const dateVal = post.fecha ? new Date(post.fecha).toISOString().split('T')[0] : 'Desconocida'

@@ -250,8 +250,11 @@ const processCsvUpload = async (req, res) => {
             }
 
             if (type === 'li_overview') {
-              const keyTotalFollowers = keys.find(k => k.includes('Seguidores (Overall aggregated value') && !k.includes('This column'))
-              const keyFollowersForTable = keys.find(k => k.includes('Seguidores (This column might contain'))
+              // const keyTotalFollowers = keys.find(k => k.includes('Seguidores (Overall aggregated value') && !k.includes('This column'))
+              // const keyFollowersForTable = keys.find(k => k.includes('Seguidores (This column might contain'))
+
+              const keyTotalFollowers = keys.find(k => (k.startsWith('Seguidores (Overall aggregated value') || k.startsWith('Followers (Overall')) && !k.includes('This column'))
+              const keyFollowersForTable = keys.find(k => k.includes('Seguidores (Daily'))
 
               // A. Histórico Diario
               if (dateVal && !dateVal.toLowerCase().includes('total')) {
