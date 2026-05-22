@@ -3,7 +3,7 @@
     <div class="max-w-4xl mx-auto w-full p-4 no-break">
       <div class="text-center mb-10">
         <h2 class="text-4xl font-black text-pluxeeBlue uppercase tracking-wide keep-with-next">Conclusión del Mes</h2>
-        <div class="h-1 w-24 bg-pluxeeYellow mx-auto mt-6"></div>
+        <div class="h-1 w-24 bg-pluxeeGreen mx-auto mt-6"></div>
       </div>
 
       <div class="bg-white p-10 md:p-14 rounded-3xl shadow-xl border border-gray-100 text-center relative overflow-hidden">

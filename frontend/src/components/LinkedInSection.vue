@@ -20,20 +20,19 @@
         <div class="grid grid-cols-12 gap-4">
           <div class="col-span-12">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center h-full">
-              <KpiCard title="Page Engagement" :value="formatNumber(data.kpis.page_reach)" />
               <KpiCard title="Total followers" :value="formatNumber(data.kpis.total_followers)" :diff="data.kpis.followers_diff" />
+              <KpiCard title="New followers" :value="formatNumber(data.kpis.net_new_followers)" :diff="data.kpis.net_new_followers_diff" />
+              <KpiCard title="Page views" :value="formatNumber(data.kpis.page_reach)" />
               <KpiCard title="Page engagement rate" :value="formatNumber(data.kpis.page_engagements_rate)" />
-              <KpiCard title="Page clicks" :value="formatNumber(data.kpis.page_clicks)" />
-              <KpiCard title="Post engagement rate" :value="data.kpis.post_engagement_rate" :diff="data.kpis.post_engagement_rate_diff" />
               <KpiCard title="Page comments" :value="formatNumber(data.kpis.page_comments)" />
-              <KpiCard title="Posts" :value="formatNumber(data.kpis.posts)" />
-              <KpiCard title="Post comments" :value="formatNumber(data.kpis.post_comments)" />
+              <KpiCard title="Page clicks" :value="formatNumber(data.kpis.page_clicks)" />
               <KpiCard title="Page shares" :value="formatNumber(data.kpis.page_shares)" />
+              <KpiCard title="Page interaction" :value="formatNumber(data.kpis.page_engagement)" />
+              <KpiCard title="Posts" :value="formatNumber(data.kpis.posts)" />
+              <KpiCard title="Post engagement rate" :value="data.kpis.post_engagement_rate" :diff="data.kpis.post_engagement_rate_diff" />
+              <KpiCard title="Post comments" :value="formatNumber(data.kpis.post_comments)" />
               <KpiCard title="Post reach" :value="formatNumber(data.kpis.post_reach)" :diff="data.kpis.post_reach_diff" />
               <KpiCard title="Post reactions" :value="formatNumber(data.kpis.post_reactions)" />
-              <KpiCard title="Page shares" :value="formatNumber(data.kpis.page_shares)" />
-              <KpiCard title="Page engagement" :value="formatNumber(data.kpis.page_engagement)" />
-              <KpiCard title="New followers" :value="formatNumber(data.kpis.net_new_followers)" :diff="data.kpis.net_new_followers_diff" />
             </div>
           </div>
         </div>
@@ -58,26 +57,27 @@
 
               <tbody v-if="data.topCities && data.topCities.length > 0">
                 <tr v-for="(city, index) in data.topCities" :key="index" class="no-break border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  <td class="py-2 text-gray-400 font-medium text-center text-sm">{{ index + 1 }}</td>
-                  <td class="py-2 pr-2">
+                  <td class="text-gray-400 font-medium text-center text-sm">{{ index + 1 }}</td>
+                  <td class="pr-2">
                     <div class="text-sm text-gray-700">{{ city.name }}</div>
                   </td>
-                  <td class="py-2 text-right text-pluxeeBlue font-bold">{{ formatNumber(city.followers) }}</td>
+                  <td class="text-right text-pluxeeBlue font-bold">{{ formatNumber(city.followers) }}</td>
                 </tr>
               </tbody>
 
               <tbody v-else>
                 <tr>
-                  <td colspan="3" class="py-10 text-center text-gray-400 font-medium text-sm">No se encontraron datos de ciudades para este periodo.</td>
+                  <td colspan="3" class="0 text-center text-gray-400 font-medium text-sm">No se encontraron datos de ciudades para este periodo.</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
-
         <div class="col-span-12 xl:col-span-7">
-          <FollowerGrowthChart color="#1877F2" class="h-full" v-if="data.kpis && Array.isArray(data.kpis.historicalFollowers) && data.kpis.historicalFollowers.length > 0" :chartData="data.kpis.historicalFollowers" />
-          <!-- <FollowerGrowthChart v-if="data.kpis.historicalFollowers && data.kpis.historicalFollowers.length" :data="data.kpis.historicalFollowers" color="#0a66c2" /> -->
+          <FollowerGrowthChart color="#d72d23" class="h-full" v-if="data.kpis && Array.isArray(data.kpis.historicalFollowers) && data.kpis.historicalFollowers.length > 0" :chartData="data.kpis.historicalFollowers" />
+        </div>
+        <div class="col-span-12">
+          <DailyPostsChart color="#d0d0d0" class="h-full" v-if="data.kpis && Array.isArray(data.kpis.historicalFollowers) && data.kpis.historicalFollowers.length > 0" :chartData="data.kpis.historicalFollowers" />
         </div>
       </div>
     </div>
@@ -124,6 +124,7 @@
   import TagsTable from './TagsTable.vue'
   import KpiCard from '@/components/KpiCard.vue'
   import FollowerGrowthChart from '@/components/FollowerGrowthChart.vue'
+  import DailyPostsChart from '@/components/DailyPostsChart.vue'
   import { formatNumber } from '@/utils/formatters'
 
   //  LA FUNCIÓN MATEMÁTICA QUE DIVIDE EL ARREGLO

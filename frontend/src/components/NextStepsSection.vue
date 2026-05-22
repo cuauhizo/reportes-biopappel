@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto w-full p-4">
       <h2 class="text-4xl font-black text-pluxeeBlue mb-10 text-center uppercase tracking-widest keep-with-next">Next Steps</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-        <div class="no-break bg-gray-50 p-8 rounded-2xl border-l-4 border-pluxeeYellow shadow-sm hover:shadow-md transition-shadow">
+        <div class="no-break bg-gray-50 p-8 rounded-2xl border-l-4 border-pluxeeRed shadow-sm hover:shadow-md transition-shadow">
           <h3 class="text-2xl font-bold text-pluxeeBlue mb-6 flex items-center">
             <span class="text-3xl mr-3">💡</span>
             Propuestas

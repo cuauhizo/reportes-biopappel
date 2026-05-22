@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeePink h-full flex flex-col">
+  <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-pluxeeRed h-full flex flex-col">
     <h3 class="text-pluxeeBlue font-bold mb-4 text-center">Post Reach</h3>
     <div class="relative w-full flex-1 min-h-[220px]">
       <Doughnut :data="chartData" :options="chartOptions" :plugins="[ChartDataLabels]" />
@@ -26,10 +26,10 @@
   // Mapeamos los datos con sus colores representativos
   const chartItems = computed(() =>
     [
-      { label: 'Reels', value: props.reachData.reel, color: '#17ccf9' },
+      { label: 'Reels', value: props.reachData.reel, color: '#d0d0d0' },
       { label: 'Carousel', value: props.reachData.carousel, color: '#ffdc37' },
-      { label: 'Stories', value: props.reachData.story, color: '#ff7375' },
-      { label: 'Photos', value: props.reachData.photo, color: '#00eb5d' },
+      { label: 'Stories', value: props.reachData.story, color: '#d72d23' },
+      { label: 'Photos', value: props.reachData.photo, color: '#a5d031' },
     ].sort((a, b) => b.value - a.value),
   ) // Los ordenamos de mayor a menor alcance
 

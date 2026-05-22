@@ -7,8 +7,8 @@
       <div class="max-w-7xl mx-auto p-4">
         <div class="grid grid-cols-12 gap-2">
           <div class="col-span-12">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2">
-              <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#e1306c] shadow-sm">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
+              <div class="bg-gray-50 p-6 rounded-xl shadow-sm">
                 <p class="text-gray-500 text-sm font-bold">Followers</p>
                 <div class="flex items-baseline gap-3 mt-1 justify-start">
                   <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.total_followers) }}</h2>
@@ -19,11 +19,11 @@
                   </span>
                 </div>
               </div>
-              <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#e1306c] shadow-sm">
+              <div class="bg-gray-50 p-6 rounded-xl shadow-sm">
                 <p class="text-gray-500 text-sm font-bold">Page Engagement</p>
                 <h2 class="text-3xl font-black text-pluxeeBlue">{{ data.kpis.page_engagement_rate }}</h2>
               </div>
-              <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#f56040] shadow-sm md:col-span-2 flex justify-between items-center">
+              <div class="bg-gray-50 p-6 rounded-xl shadow-sm md:col-span-2 flex justify-between items-center">
                 <div>
                   <p class="text-gray-500 text-sm font-bold">Total Stories</p>
                   <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.stories_metrics.total) }}</h2>
@@ -43,15 +43,15 @@
                   </p>
                 </div>
               </div>
-              <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#e1306c] shadow-sm">
+              <div class="bg-gray-50 p-6 rounded-xl shadow-sm">
                 <p class="text-gray-500 text-sm font-bold">Post Saves</p>
                 <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.post_saves) }}</h2>
               </div>
-              <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#e1306c] shadow-sm">
+              <div class="bg-gray-50 p-6 rounded-xl shadow-sm">
                 <p class="text-gray-500 text-sm font-bold">Post Likes</p>
                 <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.post_likes) }}</h2>
               </div>
-              <div class="bg-gray-50 p-6 rounded-xl border-l-4 border-[#e1306c] shadow-sm">
+              <div class="bg-gray-50 p-6 rounded-xl shadow-sm">
                 <p class="text-gray-500 text-sm font-bold">Impressions</p>
                 <div class="flex items-baseline gap-3 mt-1 justify-start">
                   <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.post_impressions) }}</h2>
@@ -110,16 +110,19 @@
     <div class="max-w-7xl mx-auto w-full p-4">
       <h2 class="text-2xl font-black text-pluxeeBlue mb-6 uppercase keep-with-next">Followers</h2>
       <div class="grid grid-cols-12 gap-4">
-        <div class="col-span-12 xl:col-span-7 xl:col-start-4">
+        <div class="col-span-12 xl:col-span-6">
           <!-- <pre>{{ data }}</pre> -->
           <div class="col-span-12 no-break">
-            <FollowerGrowthChart color="#e1306c" class="" v-if="data.kpis && Array.isArray(data.kpis.historicalFollowers) && data.kpis.historicalFollowers.length > 0" :chartData="data.kpis.historicalFollowers" />
+            <FollowerGrowthChart color="#d72d23" class="" v-if="data.kpis && Array.isArray(data.kpis.historicalFollowers) && data.kpis.historicalFollowers.length > 0" :chartData="data.kpis.historicalFollowers" />
             <div v-else>
               <div class="bg-white rounded-2xl p-8 text-center border border-gray-100 mt-6 mb-8">
                 <p class="text-gray-500 font-medium">No se encontraron seguidores en el feed de Instagram para este periodo.</p>
               </div>
             </div>
           </div>
+        </div>
+        <div class="col-span-12 xl:col-span-6">
+          <DailyPostsChart color="#d0d0d0" class="h-full" v-if="data.kpis && Array.isArray(data.kpis.historicalFollowers) && data.kpis.historicalFollowers.length > 0" :chartData="data.kpis.historicalFollowers" />
         </div>
       </div>
     </div>
@@ -242,6 +245,7 @@
   import { TrendingDown, TrendingUp } from 'lucide-vue-next'
   import ReachChart from './ReachChart.vue'
   import FollowerGrowthChart from '@/components/FollowerGrowthChart.vue'
+  import DailyPostsChart from '@/components/DailyPostsChart.vue'
 
   //  FUNCIÓN PARA AGRUPAR EN PÁGINAS Y FILAS
   const agruparPorFilas = (arreglo, tamañoFila) => {
@@ -255,7 +259,7 @@
 
   // 🚀 Función para blindar las URLs de las imágenes de IG
   const getSafeImageUrl = url => {
-    if (!url) return 'https://placehold.co/300x400/ff7375/ffffff?text=IG+Sin+Imagen'
+    if (!url) return 'https://placehold.co/300x400/d72d23/ffffff?text=IG+Sin+Imagen'
     if (url.startsWith('http') || url.startsWith('data:')) return url
     const cleanUrl = url.replace(/\\/g, '/')
     const backendBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'

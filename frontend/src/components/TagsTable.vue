@@ -119,7 +119,7 @@
       })
 
       // 🚀 ASIGNACIÓN DE COLORES PARA LA GRÁFICA
-      let lineColor = '#00eb5d' // Verde Biopappel por defecto
+      let lineColor = '#a5d031' // Verde Biopappel por defecto
       if (tag.name.toLowerCase().includes('tolko')) lineColor = '#cc0032' // Rojo Tolko
 
       return {

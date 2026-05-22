@@ -95,18 +95,15 @@ const getReportData = async (req, res) => {
     const fbOverview = getSafeValue(3, [[{}]])[0][0] || {}
     const igOverview = getSafeValue(4, [[{}]])[0][0] || {}
     const liOverview = getSafeValue(5, [[{}]])[0][0] || {}
-    const fbHistory = getSafeValue(6, [[]])[0].map(h => ({
+    const mapHistory = h => ({
       date: h.fecha ? new Date(h.fecha).toISOString().split('T')[0] : null,
       followers: h.followers,
-    }))
-    const igHistory = getSafeValue(7, [[]])[0].map(h => ({
-      date: h.fecha ? new Date(h.fecha).toISOString().split('T')[0] : null,
-      followers: h.followers,
-    }))
-    const liHistory = getSafeValue(8, [[]])[0].map(h => ({
-      date: h.fecha ? new Date(h.fecha).toISOString().split('T')[0] : null,
-      followers: h.followers,
-    }))
+      posts: h.published_posts || 0, // 🚀 Nuevo dato extraído de la BD
+    })
+
+    const fbHistory = getSafeValue(6, [[]])[0].map(mapHistory)
+    const igHistory = getSafeValue(7, [[]])[0].map(mapHistory)
+    const liHistory = getSafeValue(8, [[]])[0].map(mapHistory)
     // Función para procesar ciudades y forzar "Other" al final
     const processCities = rows => {
       const cities = rows.map(c => ({ name: c.city_name, followers: c.followers }))
@@ -152,9 +149,9 @@ const getReportData = async (req, res) => {
       let defaultImg
 
       if (red === 'fb') {
-        defaultImg = 'https://placehold.co/300x400/00eb5d/ffffff?text=Post+Sin+Imagen'
+        defaultImg = 'https://placehold.co/300x400/a5d031/ffffff?text=Post+Sin+Imagen'
       } else if (red === 'ig') {
-        defaultImg = 'https://placehold.co/300x400/ff7375/ffffff?text=IG+Sin+Imagen'
+        defaultImg = 'https://placehold.co/300x400/d72d23/ffffff?text=IG+Sin+Imagen'
       } else {
         defaultImg = 'https://placehold.co/300x400/0e76a8/ffffff?text=LI+Sin+Imagen'
       }

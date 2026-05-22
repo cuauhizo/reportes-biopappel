@@ -52,7 +52,7 @@
   const chartDataOrigen = ref(null)
   const chartDataCasos = ref(null)
 
-  const colorPalette = ['#002d72', '#17ccf9', '#ffeb00', '#00eb5d', '#cc0032', '#f56040', '#833ab4', '#e1306c', '#fd1d1d', '#fcb045', '#9bbb59', '#ff9300', '#dbeafe', '#fbcfe8', '#9ca3af']
+  const colorPalette = ['#002d72', '#d0d0d0', '#ffeb00', '#a5d031', '#cc0032', '#f56040', '#833ab4', '#e1306c', '#fd1d1d', '#fcb045', '#9bbb59', '#ff9300', '#dbeafe', '#fbcfe8', '#9ca3af']
 
   const chartOptions = {
     responsive: true,

@@ -59,11 +59,11 @@
 
               <tbody v-if="data.topCities && data.topCities.length > 0">
                 <tr v-for="(city, index) in data.topCities" :key="index" class="no-break border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  <td class="py-2 text-gray-400 font-medium text-center text-sm">{{ index + 1 }}</td>
-                  <td class="py-2 pr-2">
+                  <td class="text-gray-400 font-medium text-center text-sm">{{ index + 1 }}</td>
+                  <td class="pr-2">
                     <div class="text-sm text-gray-700">{{ city.name }}</div>
                   </td>
-                  <td class="py-2 text-right text-pluxeeBlue font-bold">{{ formatNumber(city.followers) }}</td>
+                  <td class="text-right text-pluxeeBlue font-bold">{{ formatNumber(city.followers) }}</td>
                 </tr>
               </tbody>
 
@@ -77,7 +77,11 @@
         </div>
 
         <div class="col-span-12 xl:col-span-7">
-          <FollowerGrowthChart color="#1877F2" class="h-full" v-if="data.kpis && Array.isArray(data.kpis.historicalFollowers) && data.kpis.historicalFollowers.length > 0" :chartData="data.kpis.historicalFollowers" />
+          <FollowerGrowthChart color="#d72d23" class="h-full" v-if="data.kpis && Array.isArray(data.kpis.historicalFollowers) && data.kpis.historicalFollowers.length > 0" :chartData="data.kpis.historicalFollowers" />
+        </div>
+
+        <div class="col-span-12">
+          <DailyPostsChart color="#d0d0d0" class="h-full" v-if="data.kpis && Array.isArray(data.kpis.historicalFollowers) && data.kpis.historicalFollowers.length > 0" :chartData="data.kpis.historicalFollowers" />
         </div>
       </div>
     </div>
@@ -124,6 +128,7 @@
   import TagsTable from './TagsTable.vue'
   import KpiCard from '@/components/KpiCard.vue'
   import FollowerGrowthChart from '@/components/FollowerGrowthChart.vue'
+  import DailyPostsChart from '@/components/DailyPostsChart.vue'
   import { formatNumber } from '@/utils/formatters'
 
   //  LA FUNCIÓN MATEMÁTICA QUE DIVIDE EL ARREGLO

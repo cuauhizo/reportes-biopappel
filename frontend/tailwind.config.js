@@ -5,11 +5,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        pluxeeBlue: '#2D2A26',
-        pluxeeBlueLight: '#17ccf9',
-        pluxeeGreen: '#93d50a',
-        pluxeeYellow: '#f4cf3e',
+        pluxeeBlue: '#202020',
+        pluxeeBlueLight: '#d0d0d0',
+        pluxeeGreen: '#a5d031',
+        // pluxeeYellow: '#d4d4d4',
+        pluxeeYellow: '#f0f0f0',
         pluxeePink: '#524f9c',
+        pluxeeRed: '#d72d23',
         tolkoRed: '#cc0032',
       },
     },

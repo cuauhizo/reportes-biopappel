@@ -1,8 +1,8 @@
 <template>
-  <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 h-full flex flex-col" :class="`border-[${color}]`">
+  <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 h-auto flex flex-col" :style="{ borderColor: color }">
     <h3 class="text-xl font-bold text-gray-800 mb-4">Follower Growth</h3>
     <!-- <pre>{{ chartData }}</pre> -->
-    <div class="relative w-full flex-1 min-h-[320px]">
+    <div class="relative w-full flex-1 min-h-[200px]">
       <Line v-if="chartDataObj" :data="chartDataObj" :options="chartOptions" />
       <div v-else class="flex h-full items-center justify-center text-gray-400 font-medium">No hay datos históricos para graficar en este periodo.</div>
     </div>

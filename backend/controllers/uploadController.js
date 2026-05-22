@@ -174,11 +174,13 @@ const processCsvUpload = async (req, res) => {
               const keyTotalFollowers = keys.find(k => k.includes('Total followers'))
               const keyFollowersForTable = keys.find(k => k.includes('Seguidores (This column might contain'))
               const keyInteractions = keys.find(k => k.includes('Interacciones de la página'))
+              const keyDailyPosts = keys.find(k => k.toLowerCase().includes('publicaciones (daily') || k.toLowerCase().includes('posts (daily'))
 
               // A. Histórico Diario
               if (dateVal && !dateVal.toLowerCase().includes('total')) {
                 let daily = parseInt(row[keyFollowersForTable]) || parseInt(row[keyTotalFollowers]) || 0
-                if (daily > 0) historical.push({ fecha: dateVal, followers: daily })
+                let dailyPosts = parseInt(row[keyDailyPosts]) || 0
+                if (daily > 0 || dailyPosts > 0) historical.push({ fecha: dateVal, followers: daily, posts: dailyPosts })
               }
 
               // B. KPIs Globales (Buscamos la fila donde vienen todos los totales juntos)
@@ -211,6 +213,7 @@ const processCsvUpload = async (req, res) => {
               // Lógica IG
               const keyTotalFollowers = keys.find(k => k.includes('Followers') && !k.includes('Daily'))
               const keyHistoryFollowers = keys.find(k => k.includes('Seguidores (Daily'))
+              const keyDailyPosts = keys.find(k => k.toLowerCase().includes('publicaciones (daily') || k.toLowerCase().includes('posts (daily'))
 
               const keyReachCarousel = keys.find(k => k.includes('Post reach - Carousel'))
               const keyReachPhoto = keys.find(k => k.includes('Post reach - Photo'))
@@ -222,9 +225,15 @@ const processCsvUpload = async (req, res) => {
               if (keyReachReel) maxReel = Math.max(maxReel, parseInt(row[keyReachReel]) || 0)
               if (keyReachStory) maxStory = Math.max(maxStory, parseInt(row[keyReachStory]) || 0)
 
+              // if (dateVal && !dateVal.toLowerCase().includes('total')) {
+              //   let daily = parseInt(row[keyHistoryFollowers]) || 0
+              //   if (daily >= 0) historical.push({ fecha: dateVal, followers: daily })
+              // }
+
               if (dateVal && !dateVal.toLowerCase().includes('total')) {
                 let daily = parseInt(row[keyHistoryFollowers]) || 0
-                if (daily >= 0) historical.push({ fecha: dateVal, followers: daily })
+                let dailyPosts = parseInt(row[keyDailyPosts]) || 0
+                if (daily >= 0 || dailyPosts > 0) historical.push({ fecha: dateVal, followers: daily, posts: dailyPosts })
               }
 
               if (keyTotalFollowers && row[keyTotalFollowers]) {
@@ -254,12 +263,19 @@ const processCsvUpload = async (req, res) => {
               // const keyFollowersForTable = keys.find(k => k.includes('Seguidores (This column might contain'))
 
               const keyTotalFollowers = keys.find(k => (k.startsWith('Seguidores (Overall aggregated value') || k.startsWith('Followers (Overall')) && !k.includes('This column'))
-              const keyFollowersForTable = keys.find(k => k.includes('Seguidores (Daily'))
+              const keyHistoryFollowers = keys.find(k => k.includes('Seguidores (Daily'))
+              const keyDailyPosts = keys.find(k => k.toLowerCase().includes('publicaciones (daily') || k.toLowerCase().includes('posts (daily'))
 
               // A. Histórico Diario
               if (dateVal && !dateVal.toLowerCase().includes('total')) {
-                let daily = parseInt(row[keyFollowersForTable]) || parseInt(row[keyTotalFollowers]) || 0
-                if (daily > 0) historical.push({ fecha: dateVal, followers: daily })
+                let daily = parseInt(row[keyHistoryFollowers]) || 0
+                let dailyPosts = parseInt(row[keyDailyPosts]) || 0
+
+                if (daily > 0 || dailyPosts > 0) {
+                  historical.push({ fecha: dateVal, followers: daily, posts: dailyPosts })
+                  // Como LI no tiene fila de totales, el total es el último día registrado
+                  kpis.total_followers = daily
+                }
               }
 
               // Guardar en historical_followers igual que FB e IG
@@ -273,7 +289,7 @@ const processCsvUpload = async (req, res) => {
                   li_page_engagements_rate: parseFloat(row[keys.find(k => k.includes('Porcentaje de interacción con la página (Overall aggregated value'))]) || 0,
                   li_page_clicks: parseInt(row[keys.find(k => k.includes('Clics en página'))]) || 0,
                   li_page_comments: parseInt(row[keys.find(k => k.includes('Comentarios de página'))]) || 0,
-                  li_posts: parseInt(row[keys.find(k => k.includes('Publicaciones'))]) || 0,
+                  li_posts: parseInt(row[keys.find(k => k.includes('Publicaciones (Overall aggregated value'))]) || 0,
                   li_post_comments: parseInt(row[keys.find(k => k.includes('Comentarios en publicación'))]) || 0,
                   li_page_shares: parseInt(row[keys.find(k => k.includes('Comparticiones de página'))]) || 0,
                   li_post_reach: parseInt(row[keys.find(k => k.includes('Alcance de publicaciones'))]) || 0,
@@ -317,7 +333,7 @@ const processCsvUpload = async (req, res) => {
           }
 
           for (const h of historical) {
-            await connection.query('INSERT IGNORE INTO historical_followers (periodo, red_social, fecha, followers) VALUES (?, ?, ?, ?)', [periodo, red_social, h.fecha, h.followers])
+            await connection.query('INSERT IGNORE INTO historical_followers (periodo, red_social, fecha, followers, published_posts) VALUES (?, ?, ?, ?, ?)', [periodo, red_social, h.fecha, h.followers, h.posts || 0])
           }
 
           for (const c of cities) {
