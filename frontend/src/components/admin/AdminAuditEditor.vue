@@ -203,6 +203,43 @@
       </div>
     </div>
 
+    <div v-if="datosCargados" class="mt-10 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+      <div @click="desgloseAbierto = !desgloseAbierto" class="bg-gray-50 px-6 py-4 border-b border-gray-200 cursor-pointer flex justify-between items-center hover:bg-gray-100 transition-colors">
+        <h3 class="text-sm font-black text-gray-700 uppercase tracking-widest flex items-center">Desglose Diario (Seguidores y Posts)</h3>
+        <ChevronDown :class="{ 'rotate-180': desgloseAbierto }" class="w-5 h-5 text-gray-500 transition-transform duration-300" />
+      </div>
+
+      <div v-show="desgloseAbierto">
+        <div v-if="historicalData.length === 0" class="p-6 text-center text-sm text-gray-500 italic">No hay datos históricos registrados para este mes.</div>
+
+        <div v-else class="overflow-x-auto max-h-[400px] overflow-y-auto">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-gray-50 sticky top-0 shadow-sm z-10">
+              <tr>
+                <th class="px-6 py-3 text-xs font-black text-gray-500 uppercase tracking-wider border-b border-gray-200">Fecha</th>
+                <th class="px-6 py-3 text-xs font-black text-gray-500 uppercase tracking-wider border-b border-gray-200">Seguidores</th>
+                <th class="px-6 py-3 text-xs font-black text-gray-500 uppercase tracking-wider border-b border-gray-200">Posts Publicados</th>
+              </tr>
+            </thead>
+            <tbody class="text-sm">
+              <tr v-for="item in historicalData" :key="item.id" class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                <td class="px-6 py-2 font-bold text-gray-600">
+                  {{ formatDate(item.fecha ? item.fecha.split('T')[0] : '') }}
+                </td>
+
+                <td class="px-6 py-2">
+                  <input v-model="item.followers" type="number" class="w-24 border border-gray-300 rounded-lg px-3 py-1.5 outline-none focus:border-blue-500 transition-colors" />
+                </td>
+                <td class="px-6 py-2">
+                  <input v-model="item.published_posts" type="number" class="w-24 border border-gray-300 rounded-lg px-3 py-1.5 outline-none focus:border-blue-500 transition-colors" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <div v-if="datosCargados" class="mt-6 flex justify-end">
       <button @click="guardarCambios" :disabled="isSaving" class="bg-gray-800 text-white px-8 py-2 rounded-xl font-bold hover:scale-105 transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
         <Save class="w-5 h-5" />
@@ -218,26 +255,32 @@
   import { useApi } from '@/composables/useApi'
   import { usePeriod } from '@/composables/usePeriod'
   import { useToast } from '@/composables/useToast'
-  import { ScanSearch, Save } from 'lucide-vue-next'
+  import { ScanSearch, Save, ChevronDown } from 'lucide-vue-next'
+  import { formatDate } from '@/utils/formatters'
 
   const { apiRequest, isSaving } = useApi()
   const { selectedPeriod } = usePeriod()
   const { showToast } = useToast()
 
-  const redSeleccionada = ref('fb') // 'fb' o 'ig'
+  const redSeleccionada = ref('fb') // 'fb', 'ig' o 'li'
   const datosCargados = ref(false)
   const formData = ref({})
+  const historicalData = ref([])
+  const desgloseAbierto = ref(false)
 
   // Cargar datos
   const fetchKpis = async () => {
     try {
       const data = await apiRequest(`/api/network-kpis?periodo=${selectedPeriod.value}&red_social=${redSeleccionada.value}`)
+      const hist = await apiRequest(`/api/network-kpis/historical?periodo=${selectedPeriod.value}&red_social=${redSeleccionada.value}`)
 
       if (Object.keys(data).length > 0 && data.id) {
         formData.value = { ...data }
+        historicalData.value = Array.isArray(hist) ? hist : []
         datosCargados.value = true
       } else {
         formData.value = {}
+        historicalData.value = []
         datosCargados.value = false
       }
     } catch (error) {
@@ -248,6 +291,7 @@
   // Guardar cambios
   const guardarCambios = async () => {
     try {
+      // 1. Guardar KPIs globales
       await apiRequest('/api/network-kpis', {
         method: 'PUT',
         body: JSON.stringify({
@@ -256,6 +300,19 @@
           red_social: redSeleccionada.value,
         }),
       })
+
+      // 2. Guardar Histórico Diario si hay datos
+      if (historicalData.value.length > 0) {
+        await apiRequest('/api/network-kpis/historical', {
+          method: 'PUT',
+          body: JSON.stringify({
+            periodo: selectedPeriod.value,
+            red_social: redSeleccionada.value,
+            historical: historicalData.value,
+          }),
+        })
+      }
+
       showToast(`Métricas de ${redSeleccionada.value.toUpperCase()} actualizadas con éxito.`, 'success')
     } catch (error) {
       showToast('Error al actualizar las métricas.', 'error')

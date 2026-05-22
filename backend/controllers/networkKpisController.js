@@ -51,4 +51,37 @@ const updateNetworkKpis = async (req, res) => {
   }
 }
 
-module.exports = { getNetworkKpis, updateNetworkKpis }
+// 3. OBTENER HISTÓRICO DIARIO
+const getHistorical = async (req, res) => {
+  const { periodo, red_social } = req.query
+  if (!periodo || !red_social) return res.status(400).json({ error: 'Faltan parámetros' })
+
+  try {
+    const [rows] = await pool.query('SELECT * FROM historical_followers WHERE periodo = ? AND red_social = ? ORDER BY fecha ASC', [periodo, red_social])
+    res.json(rows)
+  } catch (error) {
+    console.error('Error en getHistorical:', error)
+    res.status(500).json({ error: 'Error interno al obtener el histórico.' })
+  }
+}
+
+// 4. ACTUALIZAR HISTÓRICO DIARIO
+const updateHistorical = async (req, res) => {
+  const { periodo, red_social, historical } = req.body
+  if (!periodo || !red_social || !Array.isArray(historical)) return res.status(400).json({ error: 'Faltan parámetros' })
+
+  try {
+    const connection = await pool.getConnection()
+    for (const h of historical) {
+      await connection.query('UPDATE historical_followers SET followers = ?, published_posts = ? WHERE id = ?', [h.followers, h.published_posts || 0, h.id])
+    }
+    connection.release()
+    res.json({ message: 'Histórico actualizado correctamente' })
+  } catch (error) {
+    console.error('Error en updateHistorical:', error)
+    res.status(500).json({ error: 'Error interno al actualizar el histórico.' })
+  }
+}
+
+// Asegúrate de exportarlas actualizando tu última línea a esto:
+module.exports = { getNetworkKpis, updateNetworkKpis, getHistorical, updateHistorical }
