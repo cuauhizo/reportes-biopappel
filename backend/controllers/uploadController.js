@@ -189,14 +189,15 @@ const processCsvUpload = async (req, res) => {
                   total_followers: parseInt(row[keyTotalFollowers]) || 0,
                   new_followers: parseInt(row[keys.find(k => k.includes('Nuevos seguidores'))]) || 0,
                   engagement_rate: parseFloat(row[keys.find(k => k.includes('Post engagement rate'))]) || 0,
+
+                  fb_page_organic_reach: parseInt(row[keys.find(k => k.includes('Alcance orgánico de la página'))]) || 0,
+                  fb_page_followers_views: parseInt(row[keys.find(k => k.includes('Visualizaciones de seguidores'))]) || 0,
+                  fb_page_no_followers_views: parseInt(row[keys.find(k => k.includes('Vistas de página de no seguidores'))]) || 0,
+                  fb_post_impressions: parseInt(row[keys.find(k => k.includes('Impresiones orgánicas'))]) || 0,
                   fb_interactions: parseInt(row[keyInteractions]) || 0,
                   fb_clics: parseInt(row[keys.find(k => k.includes('Post link clicks'))]) || 0,
                   fb_shares: parseInt(row[keys.find(k => k.includes('Post shares'))]) || 0,
                   fb_comments: parseInt(row[keys.find(k => k.includes('Comentarios y respuestas'))]) || 0,
-                  fb_post_impressions: parseInt(row[keys.find(k => k.includes('Impresiones orgánicas'))]) || 0,
-                  fb_page_organic_reach: parseInt(row[keys.find(k => k.includes('Alcance orgánico de la página'))]) || 0,
-                  fb_page_no_followers_views: parseInt(row[keys.find(k => k.includes('Vistas de página de no seguidores'))]) || 0,
-                  fb_page_followers_views: parseInt(row[keys.find(k => k.includes('Visualizaciones de seguidores'))]) || 0,
                   fb_time_visualization: row[keys.find(k => k.includes('Tiempo de visualización'))] || '0',
                 }
 
@@ -240,12 +241,13 @@ const processCsvUpload = async (req, res) => {
                 kpis = {
                   total_followers: parseInt(row[keyTotalFollowers]) || 0,
                   engagement_rate: parseFloat(row[keys.find(k => k.includes('Page engagement rate'))]) || 0,
+
+                  ig_post_impressions: parseInt(row[keys.find(k => k.includes('Impresiones de publicaciones'))]) || 0,
+                  ig_post_likes: parseInt(row[keys.find(k => k.includes('Post likes'))]) || 0,
+                  ig_post_saves: parseInt(row[keys.find(k => k.includes('Post saves'))]) || 0,
                   ig_story_taps_forward: parseInt(row[keys.find(k => k.includes('Story taps forward'))]) || 0,
                   ig_story_taps_back: parseInt(row[keys.find(k => k.includes('Story taps back'))]) || 0,
                   ig_story_exits: parseInt(row[keys.find(k => k.includes('Story exits'))]) || 0,
-                  ig_post_saves: parseInt(row[keys.find(k => k.includes('Post saves'))]) || 0,
-                  ig_post_likes: parseInt(row[keys.find(k => k.includes('Post likes'))]) || 0,
-                  ig_post_impressions: parseInt(row[keys.find(k => k.includes('Impresiones de publicaciones'))]) || 0,
                 }
 
                 const cityKeys = keys.filter(k => k.includes('Audience > City') || k.includes('Seguidores de la página > Ciudad'))
@@ -289,13 +291,13 @@ const processCsvUpload = async (req, res) => {
                   li_page_engagements_rate: parseFloat(row[keys.find(k => k.includes('Porcentaje de interacción con la página (Overall aggregated value'))]) || 0,
                   li_page_clicks: parseInt(row[keys.find(k => k.includes('Clics en página'))]) || 0,
                   li_page_comments: parseInt(row[keys.find(k => k.includes('Comentarios de página'))]) || 0,
-                  li_posts: parseInt(row[keys.find(k => k.includes('Publicaciones (Overall aggregated value'))]) || 0,
-                  li_post_comments: parseInt(row[keys.find(k => k.includes('Comentarios en publicación'))]) || 0,
                   li_page_shares: parseInt(row[keys.find(k => k.includes('Comparticiones de página'))]) || 0,
+                  li_page_engagement: parseInt(row[keys.find(k => k.includes('Interacción con páginas'))]) || 0,
+                  li_posts: parseInt(row[keys.find(k => k.includes('Publicaciones (Overall aggregated value'))]) || 0,
+                  li_post_reactions: parseInt(row[keys.find(k => k.includes('Reacciones a publicaciones'))]) || 0,
+                  li_post_comments: parseInt(row[keys.find(k => k.includes('Comentarios en publicación'))]) || 0,
                   li_post_reach: parseInt(row[keys.find(k => k.includes('Alcance de publicaciones'))]) || 0,
                   li_post_video_viewers: parseInt(row[keys.find(k => k.includes('Espectadores de vídeos de publicaciones'))]) || 0,
-                  li_post_reactions: parseInt(row[keys.find(k => k.includes('Reacciones a publicaciones'))]) || 0,
-                  li_page_engagement: parseInt(row[keys.find(k => k.includes('Interacción con páginas'))]) || 0,
                 }
 
                 const cityKeys = keys.filter(k => k.includes('Seguidores -'))

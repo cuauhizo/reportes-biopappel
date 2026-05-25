@@ -149,7 +149,7 @@
       </div>
       <div class="bg-sky-50 p-3 rounded-xl border border-sky-100">
         <label class="text-[10px] font-bold text-sky-800 uppercase block mb-1">Eng. Rate Posts (%)</label>
-        <input v-model="formData.li_post_engagement_rate" type="number" step="0.01" class="w-full bg-white border border-sky-200 rounded px-2 py-1 outline-none focus:border-[#0e76a8] font-bold text-gray-700" />
+        <input v-model="formData.engagement_rate" type="number" step="0.01" class="w-full bg-white border border-sky-200 rounded px-2 py-1 outline-none focus:border-[#0e76a8] font-bold text-gray-700" />
       </div>
 
       <div class="col-span-2 md:col-span-4 mt-2">
