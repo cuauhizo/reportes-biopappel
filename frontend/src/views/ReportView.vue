@@ -9,8 +9,8 @@
   import InstagramSection from '@/components/InstagramSection.vue'
   import LinkedInSection from '@/components/LinkedInSection.vue'
   import BenchmarkSection from '@/components/BenchmarkSection.vue'
-  import CustomerServiceSection from '@/components/CustomerServiceSection.vue'
-  import FrequentComplainsSection from '@/components/FrequentComplainsSection.vue'
+  // import CustomerServiceSection from '@/components/CustomerServiceSection.vue'
+  // import FrequentComplainsSection from '@/components/FrequentComplainsSection.vue'
   import NextStepsSection from '@/components/NextStepsSection.vue'
   import ConclusionsSection from '@/components/ConclusionsSection.vue'
   import ThankYouSection from '@/components/ThankYouSection.vue'
@@ -136,8 +136,8 @@
       <BenchmarkSection :data="reportData.benchmarking" :insights="reportData.benchmarkInsights" />
       <InstagramSection :data="reportData.instagram" />
       <LinkedInSection :data="reportData.linkedin" />
-      <CustomerServiceSection :data="reportData.customerService" />
-      <FrequentComplainsSection :data="reportData.customerService" />
+      <!-- <CustomerServiceSection :data="reportData.customerService" />
+      <FrequentComplainsSection :data="reportData.customerService" /> -->
       <NextStepsSection :data="reportData.nextSteps" />
       <ConclusionsSection />
       <ThankYouSection />
