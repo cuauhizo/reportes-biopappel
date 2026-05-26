@@ -10,13 +10,13 @@
           </h3>
           <ul v-if="listaCompromisos && listaCompromisos.length > 0" class="space-y-4">
             <li v-for="item in listaPropuestas" :key="item.id" class="flex items-start">
-              <span class="text-pluxeeYellow font-black text-xl mr-3">+</span>
+              <span class="text-pluxeePink font-black text-xl mr-3">+</span>
               <span class="text-gray-700 font-medium text-lg leading-relaxed">{{ item.propuesta }}</span>
             </li>
           </ul>
           <ul v-else>
             <li>
-              <span class="text-pluxeeYellow font-black text-xl mr-3">+</span>
+              <span class="text-pluxeePink font-black text-xl mr-3">+</span>
               <span class="text-gray-700 font-medium text-lg leading-relaxed">No hay propuestas definidas aún.</span>
             </li>
           </ul>

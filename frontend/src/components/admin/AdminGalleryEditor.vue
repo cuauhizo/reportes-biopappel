@@ -1,6 +1,6 @@
 <template>
   <section class="mt-8 bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
-    <div class="mb-12 p-6 bg-blue-50 border border-blue-200 rounded-2xl shadow-sm">
+    <div v-if="configs.general_show_facebook !== false" class="mb-12 p-6 bg-blue-50 border border-blue-200 rounded-2xl shadow-sm">
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div class="flex-1">
           <h3 class="text-xl font-black text-blue-900 uppercase flex items-center">
@@ -94,7 +94,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, computed, watch } from 'vue' // 👈 Agregamos watch
+  import { ref, onMounted, onUnmounted, computed, watch } from 'vue' // 👈 Agregamos watch
   import { useApi } from '@/composables/useApi'
   import { useToast } from '@/composables/useToast'
   import { formatDate, formatNumber } from '@/utils/formatters'
@@ -104,6 +104,7 @@
   const { apiRequest, apiUrl } = useApi()
   const { showToast } = useToast()
   const { selectedPeriod } = usePeriod() // 👈 2. Extraemos la variable reactiva
+  const configs = ref({})
 
   const coverPreview = ref(null)
   const postsParaEditar = ref([])
@@ -231,5 +232,39 @@
 
   onMounted(() => {
     cargarPortadaActual()
+  })
+
+  // 🚀 2. Función para pedirle a la base de datos qué está oculto (Rompiendo caché)
+  const fetchConfigs = async () => {
+    if (!selectedPeriod.value) return
+    try {
+      const data = await apiRequest(`/api/report-config?periodo=${selectedPeriod.value}&t=${Date.now()}`)
+      configs.value = data || {}
+    } catch (error) {
+      console.error('Error cargando configuraciones en el uploader:', error)
+    }
+  }
+
+  // 🚀 3. Escuchador inter-pestañas
+  const escucharConfigCambios = event => {
+    if (event.key === 'reporte_config_actualizada') fetchConfigs()
+  }
+
+  // Reactividad: Si cambiamos de mes, actualiza las cajitas permitidas
+  watch(selectedPeriod, () => {
+    fetchConfigs()
+  })
+
+  // 🚀 4. Arrancamos los motores al cargar la página
+  onMounted(() => {
+    fetchConfigs()
+    window.addEventListener('storage', escucharConfigCambios)
+    window.addEventListener('config_actualizada_local', fetchConfigs)
+  })
+
+  // 🚀 5. Limpiamos la memoria
+  onUnmounted(() => {
+    window.removeEventListener('storage', escucharConfigCambios)
+    window.removeEventListener('config_actualizada_local', fetchConfigs)
   })
 </script>

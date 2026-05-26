@@ -1,6 +1,6 @@
 <template>
   <section class="mb-10">
-    <div class="mb-12">
+    <div v-if="configs.general_show_facebook !== false" class="mb-12">
       <div class="flex items-center gap-3 mb-6 border-b border-gray-200 pb-3">
         <div class="w-10 h-10 bg-[#1877F2] rounded-full flex items-center justify-center text-white shadow-sm">
           <i class="fab fa-facebook-f text-lg"></i>
@@ -50,7 +50,7 @@
       </div>
     </div>
 
-    <div class="mb-12">
+    <div v-if="configs.general_show_instagram !== false" class="mb-12">
       <div class="flex items-center gap-3 mb-6 border-b border-gray-200 pb-3">
         <div class="w-10 h-10 bg-gradient-to-tr from-yellow-400 to-fuchsia-600 rounded-full flex items-center justify-center text-white shadow-sm">
           <i class="fab fa-instagram text-lg"></i>
@@ -100,7 +100,7 @@
       </div>
     </div>
 
-    <div class="mb-12">
+    <div v-if="configs.general_show_linkedin !== false" class="mb-12">
       <div class="flex items-center gap-3 mb-6 border-b border-gray-200 pb-3">
         <div class="w-10 h-10 bg-[#0e76a8] rounded-full flex items-center justify-center text-white shadow-sm">
           <i class="fab fa-facebook-f text-lg"></i>
@@ -153,12 +153,16 @@
 </template>
 
 <script setup>
-  import { ref, computed } from 'vue'
+  import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
   import { useToast } from '@/composables/useToast'
   import { usePeriod } from '@/composables/usePeriod'
+  import { useApi } from '@/composables/useApi'
 
   const { showToast } = useToast()
   const { selectedPeriod } = usePeriod()
+  const { apiRequest } = useApi()
+
+  const configs = ref({})
 
   // Objeto reactivo para saber qué cajita está recibiendo un "Drag" (Hover de archivo)
   const dragState = ref({})
@@ -235,4 +239,38 @@
     const file = event.dataTransfer.files[0]
     processFile(typeId, file)
   }
+
+  // 🚀 2. Función para pedirle a la base de datos qué está oculto (Rompiendo caché)
+  const fetchConfigs = async () => {
+    if (!selectedPeriod.value) return
+    try {
+      const data = await apiRequest(`/api/report-config?periodo=${selectedPeriod.value}&t=${Date.now()}`)
+      configs.value = data || {}
+    } catch (error) {
+      console.error('Error cargando configuraciones en el uploader:', error)
+    }
+  }
+
+  // 🚀 3. Escuchador inter-pestañas
+  const escucharConfigCambios = event => {
+    if (event.key === 'reporte_config_actualizada') fetchConfigs()
+  }
+
+  // Reactividad: Si cambiamos de mes, actualiza las cajitas permitidas
+  watch(selectedPeriod, () => {
+    fetchConfigs()
+  })
+
+  // 🚀 4. Arrancamos los motores al cargar la página
+  onMounted(() => {
+    fetchConfigs()
+    window.addEventListener('storage', escucharConfigCambios)
+    window.addEventListener('config_actualizada_local', fetchConfigs)
+  })
+
+  // 🚀 5. Limpiamos la memoria
+  onUnmounted(() => {
+    window.removeEventListener('storage', escucharConfigCambios)
+    window.removeEventListener('config_actualizada_local', fetchConfigs)
+  })
 </script>

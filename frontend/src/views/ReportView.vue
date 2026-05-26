@@ -24,15 +24,11 @@
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
-  // Función que vuelve a llamar a tu API para actualizar las gráficas y configuraciones
-  const recargarDatosDelReporte = async () => {
-    // Aquí pones el nombre de la función que ya tienes programada para traer la data
-    // Ejemplo: await cargarReporteCompleto()
-    await loadReport()
-  }
-
-  const loadReport = async () => {
-    loading.value = true
+  const loadReport = async (silencioso = false) => {
+    // Si NO es silencioso (es decir, la primera vez que entra), mostramos la pantalla de carga
+    if (!silencioso) {
+      loading.value = true
+    }
     error.value = null
     try {
       // 1. Buscamos la info del reporte directo en la nueva API súper rápida
@@ -59,15 +55,6 @@
     }
   }
 
-  // Escuchador inter-pestañas
-  const escucharCambiosAdmin = event => {
-    // Si la pestaña del Admin modificó el disparador...
-    if (event.key === 'reporte_config_actualizada') {
-      console.log('🚀 El admin hizo cambios. Recargando reporte en vivo...')
-      recargarDatosDelReporte() // Ejecuta tu función de traer datos otra vez
-    }
-  }
-
   // Si el cliente cambia el mes en el selector, recargamos automáticamente
   watch(selectedPeriod, () => {
     loadReport()
@@ -79,6 +66,22 @@
 
   onMounted(() => {
     loadReport()
+    window.addEventListener('storage', escucharCambiosAdmin)
+  })
+
+  // 🚀 3. Agregas este nuevo bloque de código:
+  const escucharCambiosAdmin = event => {
+    // Si la pestaña del Admin guardó la configuración...
+    if (event.key === 'reporte_config_actualizada') {
+      console.log('🚀 El admin hizo cambios. Recargando reporte en vivo...')
+      // Llamamos a TU función para que vuelva a traer los datos
+      loadReport(true)
+    }
+  }
+
+  // 🚀 4. Limpiamos la memoria si el cliente cierra la pestaña
+  onUnmounted(() => {
+    window.removeEventListener('storage', escucharCambiosAdmin)
   })
 
   const exportToPDF = () => {

@@ -8,7 +8,6 @@ export default {
         pluxeeBlue: '#202020',
         pluxeeBlueLight: '#d0d0d0',
         pluxeeGreen: '#a5d031',
-        // pluxeeYellow: '#d4d4d4',
         pluxeeYellow: '#f0f0f0',
         pluxeePink: '#524f9c',
         pluxeeRed: '#d72d23',

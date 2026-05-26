@@ -33,16 +33,16 @@
       </div>
 
       <AdminConfigEditor />
-      <AdminContextEditor />
-      <AdminBenchmarkEditor />
+      <AdminContextEditor v-if="configs.general_show_contexto !== false" />
+      <AdminBenchmarkEditor v-if="configs.general_show_benchmarking !== false" />
       <AdminFilesEditor />
       <AdminGalleryEditor />
       <AdminAuditEditor />
       <AdminPostsEditor />
-      <AdminQuejasEditor />
-      <AdminCustomerServiceEditor />
-      <AdminPropuestasEditor />
-      <AdminCompromisosEditor />
+      <AdminQuejasEditor v-if="configs.general_show_frequentComplains !== false" />
+      <AdminCustomerServiceEditor v-if="configs.general_show_customerService !== false" />
+      <AdminPropuestasEditor v-if="configs.general_show_nextSteps !== false" />
+      <AdminCompromisosEditor v-if="configs.general_show_nextSteps !== false" />
       <AdminConclusionEditor />
       <div class="mt-16 mb-20 p-8 bg-red-50 border-2 border-red-200 border-dashed rounded-2xl flex flex-col items-center text-center">
         <h3 class="text-2xl font-black text-red-600 uppercase mb-2 flex items-center">
@@ -62,6 +62,7 @@
 </template>
 
 <script setup>
+  import { ref, onMounted, onUnmounted, watch } from 'vue'
   import { useRouter } from 'vue-router'
   import { useToast } from '@/composables/useToast'
   import { usePeriod } from '@/composables/usePeriod'
@@ -87,6 +88,7 @@
   const { showModal } = useModal()
   const { alert, showToast } = useToast()
   const { selectedPeriod } = usePeriod()
+  const configs = ref({})
 
   const borrarMesCompleto = async () => {
     // 🚀 INVOCAMOS EL NUEVO MODAL HERMOSO
@@ -117,4 +119,38 @@
     localStorage.removeItem('auth_token')
     router.push('/login')
   }
+
+  // Función para traer las configuraciones rompiendo caché
+  const fetchConfigs = async () => {
+    if (!selectedPeriod.value) return
+    try {
+      const data = await apiRequest(`/api/report-config?periodo=${selectedPeriod.value}&t=${Date.now()}`)
+      configs.value = data || {}
+    } catch (error) {
+      console.error('Error cargando configuraciones globales del admin:', error)
+    }
+  }
+
+  // Escuchadores de cambios
+  const escucharConfigCambios = event => {
+    if (event.key === 'reporte_config_actualizada') fetchConfigs()
+  }
+
+  // Si cambiamos de mes, refrescamos los paneles
+  watch(selectedPeriod, () => {
+    fetchConfigs()
+  })
+
+  onMounted(() => {
+    fetchConfigs()
+    // Escucha a otras pestañas
+    window.addEventListener('storage', escucharConfigCambios)
+    // Escucha a esta misma pestaña (cuando guardas en AdminConfigEditor)
+    window.addEventListener('config_actualizada_local', fetchConfigs)
+  })
+
+  onUnmounted(() => {
+    window.removeEventListener('storage', escucharConfigCambios)
+    window.removeEventListener('config_actualizada_local', fetchConfigs)
+  })
 </script>

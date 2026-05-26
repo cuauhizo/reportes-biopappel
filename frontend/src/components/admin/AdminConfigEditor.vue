@@ -103,6 +103,7 @@
       })
 
       localStorage.setItem('reporte_config_actualizada', Date.now())
+      window.dispatchEvent(new Event('config_actualizada_local'))
 
       showToast('Preferencias de visibilidad actualizadas', 'success')
     } catch (e) {

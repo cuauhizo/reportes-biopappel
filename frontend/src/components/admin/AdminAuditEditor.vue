@@ -6,14 +6,29 @@
         Auditoría de Métricas Globales
       </h2>
       <div class="flex gap-2 mt-4 md:mt-0 bg-gray-100 p-1 rounded-lg">
-        <button @click="redSeleccionada = 'fb'" :class="redSeleccionada === 'fb' ? 'bg-[#1877F2] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'" class="px-4 py-1.5 rounded-md font-bold text-sm transition-colors">Facebook</button>
         <button
+          v-if="configs.general_show_facebook !== false"
+          @click="redSeleccionada = 'fb'"
+          :class="redSeleccionada === 'fb' ? 'bg-[#1877F2] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+          class="px-4 py-1.5 rounded-md font-bold text-sm transition-colors">
+          Facebook
+        </button>
+
+        <button
+          v-if="configs.general_show_instagram !== false"
           @click="redSeleccionada = 'ig'"
           :class="redSeleccionada === 'ig' ? 'bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'"
           class="px-4 py-1.5 rounded-md font-bold text-sm transition-colors">
           Instagram
         </button>
-        <button @click="redSeleccionada = 'li'" :class="redSeleccionada === 'li' ? 'bg-[#0e76a8]  text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'" class="px-4 py-1.5 rounded-md font-bold text-sm transition-colors">LinkedIn</button>
+
+        <button
+          v-if="configs.general_show_linkedin !== false"
+          @click="redSeleccionada = 'li'"
+          :class="redSeleccionada === 'li' ? 'bg-[#0e76a8]  text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+          class="px-4 py-1.5 rounded-md font-bold text-sm transition-colors">
+          LinkedIn
+        </button>
       </div>
     </div>
 
@@ -251,7 +266,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, watch } from 'vue'
+  import { ref, onMounted, onUnmounted, watch } from 'vue'
   import { useApi } from '@/composables/useApi'
   import { usePeriod } from '@/composables/usePeriod'
   import { useToast } from '@/composables/useToast'
@@ -268,6 +283,33 @@
   const formData = ref({})
   const historicalData = ref([])
   const desgloseAbierto = ref(false)
+  const configs = ref({})
+
+  // 2. Función para cargar las configuraciones del periodo
+  const fetchConfigs = async () => {
+    if (!selectedPeriod.value) return
+    try {
+      const data = await apiRequest(`/api/report-config?periodo=${selectedPeriod.value}&t=${Date.now()}`)
+      configs.value = data || {}
+
+      // Inteligencia: Si la red en la que estoy parado se ocultó, me muevo a una visible
+      if (redSeleccionada.value === 'fb' && data.general_show_facebook === false) {
+        saltarARedVisible()
+      } else if (redSeleccionada.value === 'ig' && data.general_show_instagram === false) {
+        saltarARedVisible()
+      } else if (redSeleccionada.value === 'li' && data.general_show_linkedin === false) {
+        saltarARedVisible()
+      }
+    } catch (error) {
+      console.error('Error cargando configuraciones en admin:', error)
+    }
+  }
+
+  const saltarARedVisible = () => {
+    if (configs.value.general_show_facebook !== false) redSeleccionada.value = 'fb'
+    else if (configs.value.general_show_instagram !== false) redSeleccionada.value = 'ig'
+    else if (configs.value.general_show_linkedin !== false) redSeleccionada.value = 'li'
+  }
 
   // Cargar datos
   const fetchKpis = async () => {
@@ -286,6 +328,12 @@
       }
     } catch (error) {
       console.error('Error cargando KPIs:', error)
+    }
+  }
+
+  const escucharConfigCambios = event => {
+    if (event.key === 'reporte_config_actualizada') {
+      fetchConfigs()
     }
   }
 
@@ -320,16 +368,30 @@
     }
   }
 
-  // Reactividad
-  watch([selectedPeriod, redSeleccionada], () => {
+  // Reactividad: Solo vigila el periodo. (La red ya se vigila en el composable)
+  watch(selectedPeriod, () => {
+    fetchConfigs()
     fetchKpis()
   })
 
-  watch(redSeleccionada, nuevaRed => {
-    localStorage.setItem('adminUltimaRed', nuevaRed)
+  // Reactividad extra: Si cambia la red, trae los KPIs de esa nueva red.
+  watch(redSeleccionada, () => {
+    fetchKpis()
   })
 
   onMounted(() => {
+    fetchConfigs()
     fetchKpis()
+    window.addEventListener('storage', escucharConfigCambios) // Para otras pestañas
+
+    // Escuchamos el evento de esta misma pestaña
+    window.addEventListener('config_actualizada_local', fetchConfigs)
+  })
+
+  onUnmounted(() => {
+    window.removeEventListener('storage', escucharConfigCambios)
+
+    // Limpiamos la memoria
+    window.removeEventListener('config_actualizada_local', fetchConfigs)
   })
 </script>
