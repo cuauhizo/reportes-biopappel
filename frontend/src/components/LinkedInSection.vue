@@ -32,7 +32,7 @@
               <KpiCard title="Post engagement rate" :value="data.kpis.post_engagement_rate" :diff="data.kpis.post_engagement_rate_diff" />
               <KpiCard title="Post comments" :value="formatNumber(data.kpis.post_comments)" />
               <KpiCard title="Post reach" :value="formatNumber(data.kpis.post_reach)" :diff="data.kpis.post_reach_diff" />
-              <KpiCard title="Post reactions" :value="formatNumber(data.kpis.post_reactions)" />
+              <KpiCard v-if="config.li_show_post_reactions !== false" title="Post reactions" :value="formatNumber(data.kpis.post_reactions)" />
             </div>
           </div>
         </div>
@@ -133,7 +133,8 @@
     return Array.from({ length: Math.ceil(arreglo.length / tamañoFila) }, (v, i) => arreglo.slice(i * tamañoFila, i * tamañoFila + tamañoFila))
   }
 
-  defineProps({
-    data: Object,
+  const props = defineProps({
+    data: { type: Object, required: true },
+    config: { type: Object, default: () => ({}) },
   })
 </script>

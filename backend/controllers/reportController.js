@@ -51,6 +51,11 @@ const calculateTags = posts => {
 
 const getReportData = async (req, res) => {
   const { periodId } = req.params
+  const [configRows] = await pool.query('SELECT * FROM report_configs WHERE periodo = ?', [periodId])
+  const reportConfig = {}
+  configRows.forEach(r => {
+    reportConfig[`${r.red_social}_${r.config_key}`] = !!r.is_visible
+  })
 
   // Calculamos el ID del mes anterior
   const [year, month] = periodId.split('-')
@@ -204,6 +209,7 @@ const getReportData = async (req, res) => {
     // 3. REPORT ASSEMBLY
     const fullReport = {
       metadata: { client: 'Bio pappel', title: 'SOCIAL MEDIA REPORT', period: mesDinamico, agency: 'TOLKO' },
+      config: reportConfig,
       facebook: {
         username: hootsuiteData?.facebook?.username || 'Bio pappel',
         kpis: {

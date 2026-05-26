@@ -27,6 +27,17 @@ async function initDB() {
       )
     `)
 
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS report_configs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        periodo VARCHAR(7) NOT NULL,
+        red_social VARCHAR(20) NOT NULL,   -- 'general', 'fb', 'ig', 'li'
+        config_key VARCHAR(50) NOT NULL,   -- 'show_linkedin', 'show_kpi_clicks', etc.
+        is_visible BOOLEAN DEFAULT TRUE,
+        UNIQUE KEY unique_period_key (periodo, red_social, config_key)
+        ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+    `)
+
     //  NUEVA TABLA: Para los puntos del Contexto de RRSS
     await connection.query(`
       CREATE TABLE IF NOT EXISTS contexto_rrss (

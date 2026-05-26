@@ -93,12 +93,13 @@
   import { usePeriod } from '@/composables/usePeriod'
   import { useToast } from '@/composables/useToast'
   import { SquarePen, Save, ExternalLink } from 'lucide-vue-next'
+  import { useSocialNetwork } from '@/composables/useSocialNetwork'
 
   const { apiRequest, isSaving, apiUrl } = useApi()
   const { selectedPeriod } = usePeriod()
   const { showToast } = useToast()
 
-  const redSeleccionada = ref('fb') // 'fb' o 'ig'
+  const { redSeleccionada } = useSocialNetwork()
   const posts = ref([])
 
   // Cargar posts
@@ -150,6 +151,10 @@
   // Reactividad a cambios de Red Social o Periodo
   watch([selectedPeriod, redSeleccionada], () => {
     fetchPosts()
+  })
+
+  watch(redSeleccionada, nuevaRed => {
+    localStorage.setItem('adminUltimaRed', nuevaRed)
   })
 
   onMounted(() => {

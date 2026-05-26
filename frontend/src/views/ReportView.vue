@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, onMounted, watch } from 'vue'
+  import { ref, onMounted, onUnmounted, watch } from 'vue'
   import html2pdf from 'html2pdf.js'
   import { usePeriod } from '@/composables/usePeriod'
 
@@ -9,8 +9,8 @@
   import InstagramSection from '@/components/InstagramSection.vue'
   import LinkedInSection from '@/components/LinkedInSection.vue'
   import BenchmarkSection from '@/components/BenchmarkSection.vue'
-  // import CustomerServiceSection from '@/components/CustomerServiceSection.vue'
-  // import FrequentComplainsSection from '@/components/FrequentComplainsSection.vue'
+  import CustomerServiceSection from '@/components/CustomerServiceSection.vue'
+  import FrequentComplainsSection from '@/components/FrequentComplainsSection.vue'
   import NextStepsSection from '@/components/NextStepsSection.vue'
   import ConclusionsSection from '@/components/ConclusionsSection.vue'
   import ThankYouSection from '@/components/ThankYouSection.vue'
@@ -20,8 +20,16 @@
   const loading = ref(true)
   const error = ref(null)
   const isExporting = ref(false)
+  const activeTab = ref(localStorage.getItem('reportActiveTab') || 'fb')
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
+  // Función que vuelve a llamar a tu API para actualizar las gráficas y configuraciones
+  const recargarDatosDelReporte = async () => {
+    // Aquí pones el nombre de la función que ya tienes programada para traer la data
+    // Ejemplo: await cargarReporteCompleto()
+    await loadReport()
+  }
 
   const loadReport = async () => {
     loading.value = true
@@ -51,9 +59,22 @@
     }
   }
 
+  // Escuchador inter-pestañas
+  const escucharCambiosAdmin = event => {
+    // Si la pestaña del Admin modificó el disparador...
+    if (event.key === 'reporte_config_actualizada') {
+      console.log('🚀 El admin hizo cambios. Recargando reporte en vivo...')
+      recargarDatosDelReporte() // Ejecuta tu función de traer datos otra vez
+    }
+  }
+
   // Si el cliente cambia el mes en el selector, recargamos automáticamente
   watch(selectedPeriod, () => {
     loadReport()
+  })
+
+  watch(activeTab, newTab => {
+    localStorage.setItem('reportActiveTab', newTab)
   })
 
   onMounted(() => {
@@ -100,6 +121,16 @@
         })
     }, 800)
   }
+
+  onMounted(() => {
+    // Empezamos a escuchar al navegador
+    window.addEventListener('storage', escucharCambiosAdmin)
+  })
+
+  onUnmounted(() => {
+    // Limpiamos el escuchador al cerrar el componente para no alentar el navegador
+    window.removeEventListener('storage', escucharCambiosAdmin)
+  })
 </script>
 
 <template>
@@ -131,14 +162,14 @@
 
     <div v-else id="report-container" :class="{ 'export-mode': isExporting }">
       <CoverSection :metadata="reportData.metadata" />
-      <ContextSection :data="reportData.context" />
-      <FacebookSection :data="reportData.facebook" />
-      <BenchmarkSection :data="reportData.benchmarking" :insights="reportData.benchmarkInsights" />
-      <InstagramSection :data="reportData.instagram" />
-      <LinkedInSection :data="reportData.linkedin" />
-      <!-- <CustomerServiceSection :data="reportData.customerService" />
-      <FrequentComplainsSection :data="reportData.customerService" /> -->
-      <NextStepsSection :data="reportData.nextSteps" />
+      <ContextSection v-if="reportData.config.general_show_contexto !== false" :data="reportData.context" />
+      <FacebookSection v-if="reportData.config.general_show_facebook !== false" :data="reportData.facebook" :config="reportData.config || {}" />
+      <BenchmarkSection v-if="reportData.config.general_show_benchmarking !== false" :data="reportData.benchmarking" :insights="reportData.benchmarkInsights" />
+      <InstagramSection v-if="reportData.config.general_show_instagram !== false" :data="reportData.instagram" :config="reportData.config || {}" />
+      <LinkedInSection v-if="reportData.config.general_show_linkedin !== false" :data="reportData.linkedin" :config="reportData.config || {}" />
+      <CustomerServiceSection v-if="reportData.config.general_show_customerService !== false" :data="reportData.customerService" />
+      <FrequentComplainsSection v-if="reportData.config.general_show_frequentComplains !== false" :data="reportData.customerService" />
+      <NextStepsSection v-if="reportData.config.general_show_nextSteps !== false" :data="reportData.nextSteps" />
       <ConclusionsSection />
       <ThankYouSection />
     </div>

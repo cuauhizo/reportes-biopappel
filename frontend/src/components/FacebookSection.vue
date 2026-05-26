@@ -34,7 +34,7 @@
               <KpiCard title="New followers" :value="formatNumber(data.kpis.new_followers)" :diff="data.kpis.new_followers_diff" />
             </div>
           </div>
-          <div class="col-span-12 xl:col-span-3">
+          <div v-if="config.fb_show_sentiment !== false" class="col-span-12 xl:col-span-3">
             <SentimentChart :sentimentData="data.kpis.sentiment" />
           </div>
         </div>
@@ -137,7 +137,8 @@
     return Array.from({ length: Math.ceil(arreglo.length / tamañoFila) }, (v, i) => arreglo.slice(i * tamañoFila, i * tamañoFila + tamañoFila))
   }
 
-  defineProps({
-    data: Object,
+  const props = defineProps({
+    data: { type: Object, required: true },
+    config: { type: Object, default: () => ({}) },
   })
 </script>

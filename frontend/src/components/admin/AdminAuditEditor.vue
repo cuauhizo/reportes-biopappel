@@ -257,12 +257,13 @@
   import { useToast } from '@/composables/useToast'
   import { ScanSearch, Save, ChevronDown } from 'lucide-vue-next'
   import { formatDate } from '@/utils/formatters'
+  import { useSocialNetwork } from '@/composables/useSocialNetwork'
 
   const { apiRequest, isSaving } = useApi()
   const { selectedPeriod } = usePeriod()
   const { showToast } = useToast()
 
-  const redSeleccionada = ref('fb') // 'fb', 'ig' o 'li'
+  const { redSeleccionada } = useSocialNetwork()
   const datosCargados = ref(false)
   const formData = ref({})
   const historicalData = ref([])
@@ -322,6 +323,10 @@
   // Reactividad
   watch([selectedPeriod, redSeleccionada], () => {
     fetchKpis()
+  })
+
+  watch(redSeleccionada, nuevaRed => {
+    localStorage.setItem('adminUltimaRed', nuevaRed)
   })
 
   onMounted(() => {

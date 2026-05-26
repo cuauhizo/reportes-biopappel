@@ -23,7 +23,7 @@
                 <p class="text-gray-500 text-sm font-bold">Page Engagement</p>
                 <h2 class="text-3xl font-black text-pluxeeBlue">{{ data.kpis.page_engagement_rate }}</h2>
               </div>
-              <div class="bg-gray-50 p-6 rounded-xl shadow-sm md:col-span-2 flex justify-between items-center">
+              <div v-if="config.ig_show_stories !== false" class="bg-gray-50 p-6 rounded-xl shadow-sm md:col-span-2 flex justify-between items-center">
                 <div>
                   <p class="text-gray-500 text-sm font-bold">Total Stories</p>
                   <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.stories_metrics.total) }}</h2>
@@ -253,8 +253,9 @@
     return Array.from({ length: Math.ceil(arreglo.length / tamañoFila) }, (v, i) => arreglo.slice(i * tamañoFila, i * tamañoFila + tamañoFila))
   }
 
-  defineProps({
-    data: Object,
+  const props = defineProps({
+    data: { type: Object, required: true },
+    config: { type: Object, default: () => ({}) },
   })
 
   // 🚀 Función para blindar las URLs de las imágenes de IG
