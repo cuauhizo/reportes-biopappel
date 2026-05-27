@@ -47,4 +47,50 @@ const updateConfigs = async (req, res) => {
   }
 }
 
-module.exports = { getConfigs, updateConfigs }
+const copyPreviousMonthConfigs = async (req, res) => {
+  const { periodo } = req.body
+  if (!periodo) return res.status(400).json({ error: 'Periodo requerido' })
+
+  // 1. Calcular el mes anterior (Ej: de "2026-05" a "2026-04")
+  const [year, month] = periodo.split('-')
+  let prevYear = parseInt(year)
+  let prevMonth = parseInt(month) - 1
+
+  if (prevMonth === 0) {
+    prevMonth = 12
+    prevYear -= 1
+  }
+
+  const periodoAnterior = `${prevYear}-${String(prevMonth).padStart(2, '0')}`
+
+  try {
+    const connection = await pool.getConnection()
+
+    // 2. Buscar si el mes anterior tiene configuraciones guardadas
+    const [prevConfigs] = await connection.query('SELECT * FROM report_configs WHERE periodo = ?', [periodoAnterior])
+
+    if (prevConfigs.length === 0) {
+      connection.release()
+      return res.status(404).json({ error: 'No hay configuraciones en el mes anterior para copiar.' })
+    }
+
+    // 3. Copiar cada registro al mes actual
+    for (const row of prevConfigs) {
+      await connection.query(
+        `INSERT INTO report_configs (periodo, red_social, config_key, is_visible) 
+         VALUES (?, ?, ?, ?) 
+         ON DUPLICATE KEY UPDATE is_visible = VALUES(is_visible)`,
+        [periodo, row.red_social, row.config_key, row.is_visible],
+      )
+    }
+
+    connection.release()
+    res.json({ message: 'Configuración copiada con éxito' })
+  } catch (error) {
+    console.error('Error en copyPreviousMonthConfigs:', error)
+    res.status(500).json({ error: 'Error interno al copiar la configuración.' })
+  }
+}
+
+// No olvides exportar la nueva función:
+module.exports = { getConfigs, updateConfigs, copyPreviousMonthConfigs }

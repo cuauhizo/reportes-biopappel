@@ -1,8 +1,15 @@
 <template>
   <section class="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
-    <div class="flex items-center mb-6 border-b border-gray-100 pb-4">
-      <Settings2 class="w-7 h-7 mr-3 text-gray-800" stroke-width="2.5" />
-      <h2 class="text-2xl font-black text-gray-800 uppercase">Configuración de Visibilidad del Reporte</h2>
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b border-gray-100 pb-4">
+      <div class="flex items-center">
+        <Settings2 class="w-7 h-7 mr-3 text-gray-800" stroke-width="2.5" />
+        <h2 class="text-2xl font-black text-gray-800 uppercase">Configuración de Visibilidad</h2>
+      </div>
+
+      <button @click="copiarMesAnterior" :disabled="isSaving" class="mt-4 md:mt-0 flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold text-sm transition-colors">
+        <Copy class="w-4 h-4" />
+        Copiar del mes anterior
+      </button>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -51,11 +58,13 @@
   import { useApi } from '@/composables/useApi'
   import { usePeriod } from '@/composables/usePeriod'
   import { useToast } from '@/composables/useToast'
-  import { Settings2, Save } from 'lucide-vue-next'
+  import { useModal } from '@/composables/useModal'
+  import { Settings2, Save, Copy } from 'lucide-vue-next'
 
   const { apiRequest, isSaving } = useApi()
-  const { selectedPeriod } = usePeriod()
+  const { showModal } = useModal()
   const { showToast } = useToast()
+  const { selectedPeriod } = usePeriod()
 
   const configs = ref({})
 
@@ -108,6 +117,39 @@
       showToast('Preferencias de visibilidad actualizadas', 'success')
     } catch (e) {
       showToast('Error al guardar configuraciones', 'error')
+    }
+  }
+
+  const copiarMesAnterior = async () => {
+    // Pedimos confirmación para no sobrescribir por accidente
+    // if (!confirm('¿Estás seguro de copiar la configuración del mes anterior? Esto sobrescribirá la configuración actual de este mes.')) return
+
+    const isConfirmed = await showModal({
+      message: `¿Estás seguro de copiar la configuración del mes anterior?`,
+    })
+
+    if (!isConfirmed) {
+      showToast('Operación cancelada.', 'error')
+      return
+    }
+
+    try {
+      await apiRequest('/api/report-config/copy-previous', {
+        method: 'POST',
+        body: JSON.stringify({ periodo: selectedPeriod.value }),
+      })
+
+      showToast('Configuración copiada exitosamente', 'success')
+
+      // Volvemos a pedir los datos a la BD para que se actualicen los switches en pantalla
+      await cargarConfiguraciones()
+
+      // 🚀 Disparamos los eventos globales para que el Reporte y las otras pestañas reaccionen
+      localStorage.setItem('reporte_config_actualizada', Date.now())
+      window.dispatchEvent(new Event('config_actualizada_local'))
+    } catch (e) {
+      // Si mandamos un 404 porque no había datos, lo mostramos
+      showToast(e.message || 'Error al copiar la configuración', 'error')
     }
   }
 
