@@ -44,6 +44,22 @@
       </div>
     </div>
 
+    <div class="mt-8 p-4 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-amber-100 rounded-lg text-amber-800">
+          <Lock v-if="configs['general_is_locked']" class="w-5 h-5" />
+          <Unlock v-else class="w-5 h-5" />
+        </div>
+        <div>
+          <p class="font-bold text-amber-900 text-sm">Bloquear edición de este periodo</p>
+          <p class="text-xs text-amber-700">Si se activa, se deshabilitará la carga de archivos y edición de métricas en todo el admin para este mes.</p>
+        </div>
+      </div>
+      <button @click="toggleConfig('general_is_locked')" :class="configs['general_is_locked'] ? 'bg-amber-600' : 'bg-gray-200'" class="w-12 h-6 flex items-center rounded-full p-1 duration-300 cursor-pointer">
+        <div :class="{ 'translate-x-6': configs['general_is_locked'] }" class="bg-white w-4 h-4 rounded-full shadow-md transform duration-300"></div>
+      </button>
+    </div>
+
     <div class="mt-8 flex justify-end">
       <button @click="guardarConfiguraciones" :disabled="isSaving" class="bg-gray-800 text-white px-8 py-2 rounded-xl font-bold hover:scale-105 transition disabled:opacity-50 flex items-center gap-2">
         <Save class="w-5 h-5" />
@@ -59,7 +75,7 @@
   import { usePeriod } from '@/composables/usePeriod'
   import { useToast } from '@/composables/useToast'
   import { useModal } from '@/composables/useModal'
-  import { Settings2, Save, Copy } from 'lucide-vue-next'
+  import { Settings2, Save, Copy, Lock, Unlock } from 'lucide-vue-next'
 
   const { apiRequest, isSaving } = useApi()
   const { showModal } = useModal()
@@ -89,11 +105,15 @@
     if (!selectedPeriod.value) return
     try {
       const data = await apiRequest(`/api/report-config?periodo=${selectedPeriod.value}`)
-      // Estructuramos valores por defecto (True) si no existen en la BD
+
       const baseConfigs = {}
       secciones.concat(kpis).forEach(item => {
         baseConfigs[item.key] = data[item.key] !== undefined ? data[item.key] : true
       })
+
+      // 🚀 CAMBIO CLAVE: Leer y guardar el valor real del candado desde MySQL
+      baseConfigs['general_is_locked'] = data['general_is_locked'] === true
+
       configs.value = baseConfigs
     } catch (e) {
       console.error(e)

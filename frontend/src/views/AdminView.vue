@@ -32,29 +32,40 @@
         {{ alert.message }}
       </div>
 
+      <div v-if="configs['general_is_locked']" class="mb-6 bg-amber-500 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-3 shadow-md animate-pulse">
+        <Lock class="w-6 h-6" />
+        <span>PERIODO CONGELADO: La edición de datos y carga de archivos está deshabilitada para el mes de {{ selectedPeriod }}.</span>
+      </div>
+
       <AdminConfigEditor />
-      <AdminContextEditor v-if="configs.general_show_contexto !== false" />
-      <AdminBenchmarkEditor v-if="configs.general_show_benchmarking !== false" />
-      <AdminFilesEditor />
-      <AdminGalleryEditor />
-      <AdminAuditEditor />
-      <AdminPostsEditor />
-      <AdminQuejasEditor v-if="configs.general_show_frequentComplains !== false" />
-      <AdminCustomerServiceEditor v-if="configs.general_show_customerService !== false" />
-      <AdminPropuestasEditor v-if="configs.general_show_nextSteps !== false" />
-      <AdminCompromisosEditor v-if="configs.general_show_nextSteps !== false" />
-      <AdminConclusionEditor />
-      <div class="mt-16 mb-20 p-8 bg-red-50 border-2 border-red-200 border-dashed rounded-2xl flex flex-col items-center text-center">
-        <h3 class="text-2xl font-black text-red-600 uppercase mb-2 flex items-center">
-          <TriangleAlert class="w-7 h-7 mr-3" stroke-width="2.5" />
-          Zona de Peligro
-        </h3>
-        <p class="text-red-500 mb-6 font-medium">
-          ¿Subiste archivos equivocados o el mes se corrompió? Presiona este botón para eliminar TODOS los datos, posts, contextos y gráficas del periodo
-          <b>{{ selectedPeriod }}</b>
-          .
-        </p>
-        <button @click="borrarMesCompleto" class="bg-red-600 text-white px-8 py-3 rounded-xl font-bold text-lg hover:bg-red-700 hover:scale-105 transition shadow-lg flex items-center">FORMATEAR MES ACTUAL</button>
+      <div class="relative">
+        <div v-if="configs['general_is_locked']" class="absolute inset-0 bg-gray-100/10 cursor-not-allowed z-40" title="Desbloquea el periodo en la sección de configuración para editar"></div>
+
+        <div :class="{ 'opacity-50 pointer-events-none select-none': configs['general_is_locked'] }" class="transition-opacity duration-300 space-y-10">
+          <AdminContextEditor v-if="configs.general_show_contexto !== false" />
+          <AdminBenchmarkEditor v-if="configs.general_show_benchmarking !== false" />
+          <AdminFilesEditor />
+          <AdminGalleryEditor />
+          <AdminAuditEditor />
+          <AdminPostsEditor />
+          <AdminQuejasEditor v-if="configs.general_show_frequentComplains !== false" />
+          <AdminCustomerServiceEditor v-if="configs.general_show_customerService !== false" />
+          <AdminPropuestasEditor v-if="configs.general_show_nextSteps !== false" />
+          <AdminCompromisosEditor v-if="configs.general_show_nextSteps !== false" />
+          <AdminConclusionEditor />
+          <div class="mt-16 mb-20 p-8 bg-red-50 border-2 border-red-200 border-dashed rounded-2xl flex flex-col items-center text-center">
+            <h3 class="text-2xl font-black text-red-600 uppercase mb-2 flex items-center">
+              <TriangleAlert class="w-7 h-7 mr-3" stroke-width="2.5" />
+              Zona de Peligro
+            </h3>
+            <p class="text-red-500 mb-6 font-medium">
+              ¿Subiste archivos equivocados o el mes se corrompió? Presiona este botón para eliminar TODOS los datos, posts, contextos y gráficas del periodo
+              <b>{{ selectedPeriod }}</b>
+              .
+            </p>
+            <button @click="borrarMesCompleto" class="bg-red-600 text-white px-8 py-3 rounded-xl font-bold text-lg hover:bg-red-700 hover:scale-105 transition shadow-lg flex items-center">FORMATEAR MES ACTUAL</button>
+          </div>
+        </div>
       </div>
     </div>
     <ConfirmModal />
@@ -68,7 +79,7 @@
   import { usePeriod } from '@/composables/usePeriod'
   import { useApi } from '@/composables/useApi'
   import { useModal } from '@/composables/useModal'
-  import { CalendarRange, LogOut, Proportions, TriangleAlert, Check, X } from 'lucide-vue-next'
+  import { CalendarRange, LogOut, Proportions, TriangleAlert, Check, X, Lock } from 'lucide-vue-next'
   import ConfirmModal from '@/components/admin/ConfirmModal.vue'
   import AdminContextEditor from '@/components/admin/AdminContextEditor.vue'
   import AdminConfigEditor from '@/components/admin/AdminConfigEditor.vue'

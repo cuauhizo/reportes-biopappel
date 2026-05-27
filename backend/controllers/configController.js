@@ -19,14 +19,22 @@ const getConfigs = async (req, res) => {
 }
 
 const updateConfigs = async (req, res) => {
-  const { periodo, configs } = req.body // configs es un objeto { 'li_show_section': false, ... }
+  const { periodo, configs } = req.body
   if (!periodo || !configs) return res.status(400).json({ error: 'Faltan parámetros' })
 
   try {
+    // 1. Si el periodo ya está bloqueado, prevenir cualquier modificación EXCEPTO si se está intentando desbloquear
+    const isCurrentlyLocked = await checkIfPeriodIsLocked(periodo)
+
+    // Si el periodo está bloqueado y en la petición 'general_is_locked' sigue siendo true, rechazamos el cambio
+    if (isCurrentlyLocked && configs['general_is_locked'] === true) {
+      // 🚀 CAMBIO CLAVE: Usamos status(400) en lugar de 403
+      return res.status(400).json({ error: 'Este periodo está bloqueado. Desbloquéalo primero para realizar cambios.' })
+    }
+
     const connection = await pool.getConnection()
 
     for (const [fullKey, isVisible] of Object.entries(configs)) {
-      // Separamos el prefijo de la red social de la llave (ej: 'li' y 'show_section')
       const index = fullKey.indexOf('_')
       const red_social = fullKey.substring(0, index)
       const config_key = fullKey.substring(index + 1)
@@ -89,6 +97,18 @@ const copyPreviousMonthConfigs = async (req, res) => {
   } catch (error) {
     console.error('Error en copyPreviousMonthConfigs:', error)
     res.status(500).json({ error: 'Error interno al copiar la configuración.' })
+  }
+}
+
+// 🚀 Función auxiliar para verificar si un periodo está bloqueado
+const checkIfPeriodIsLocked = async periodo => {
+  try {
+    const [rows] = await pool.query("SELECT is_visible FROM report_configs WHERE periodo = ? AND red_social = 'general' AND config_key = 'is_locked'", [periodo])
+    // Si existe el registro y su valor es 1 (true), entonces está bloqueado
+    return rows.length > 0 && rows[0].is_visible === 1
+  } catch (error) {
+    console.error('Error al verificar bloqueo del periodo:', error)
+    return false
   }
 }
 
