@@ -229,7 +229,7 @@
 
         <div v-else class="overflow-x-auto max-h-[400px] overflow-y-auto">
           <table class="w-full text-left border-collapse">
-            <thead class="bg-gray-50 sticky top-0 shadow-sm z-10">
+            <thead class="bg-gray-50 sticky top-0 shadow-sm">
               <tr>
                 <th class="px-6 py-3 text-xs font-black text-gray-500 uppercase tracking-wider border-b border-gray-200">Fecha</th>
                 <th class="px-6 py-3 text-xs font-black text-gray-500 uppercase tracking-wider border-b border-gray-200">Seguidores</th>

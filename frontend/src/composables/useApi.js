@@ -23,7 +23,20 @@ export function useApi() {
         throw new Error('Sesión expirada')
       }
 
-      if (!response.ok) throw new Error(`Error en ${endpoint}`)
+      if (!response.ok) {
+        let errorMessage = `Error en ${endpoint}`
+        try {
+          // Intentamos extraer el JSON de error que manda el backend
+          const errorData = await response.json()
+          if (errorData.error) {
+            errorMessage = errorData.error
+          }
+        } catch (e) {
+          // Si el servidor falla muy feo y no manda JSON, conservamos el error genérico
+        }
+        throw new Error(errorMessage)
+      }
+
       return await response.json()
     } catch (error) {
       console.error(error)
