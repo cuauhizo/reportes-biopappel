@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, onMounted, onUnmounted, watch } from 'vue'
+  import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
   import html2pdf from 'html2pdf.js'
   import { usePeriod } from '@/composables/usePeriod'
 
@@ -23,6 +23,13 @@
   const activeTab = ref(localStorage.getItem('reportActiveTab') || 'fb')
 
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
+  const maxMonth = computed(() => {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = String(today.getMonth() + 1).padStart(2, '0')
+    return `${year}-${month}`
+  })
 
   const loadReport = async (silencioso = false) => {
     // Si NO es silencioso (es decir, la primera vez que entra), mostramos la pantalla de carga
@@ -138,9 +145,9 @@
 
 <template>
   <div class="font-sans text-gray-800 bg-gray-50">
-    <div class="bg-pluxeeBlue p-4 hidden justify-center items-center gap-4 text-white print:hidden">
+    <div class="bg-pluxeeBlue p-1 flex justify-center items-center gap-4 text-white absolute w-full print:hidden z-20">
       <span class="text-xs font-bold uppercase tracking-widest opacity-70">Viendo reporte de:</span>
-      <input type="month" v-model="selectedPeriod" class="bg-white/10 border border-white/20 rounded-lg px-3 py-1 font-black outline-none cursor-pointer hover:bg-white/20 transition" />
+      <input type="month" v-model="selectedPeriod" min="2026-01" :max="maxMonth" class="bg-white/10 border border-white/20 rounded-lg px-3 py-1 font-black outline-none cursor-pointer hover:bg-white/20 transition" />
     </div>
 
     <button v-if="!loading && !error && !isExporting" @click="exportToPDF" class="fixed bottom-8 right-8 z-50 bg-pluxeeBlue text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center gap-2 group print:hidden">

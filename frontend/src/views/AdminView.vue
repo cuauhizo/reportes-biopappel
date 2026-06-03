@@ -8,7 +8,7 @@
             <CalendarRange class="w-8 h-8 text-pluxeePink" />
             <div class="flex flex-col">
               <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Periodo a editar</span>
-              <input type="month" v-model="selectedPeriod" class="font-black text-pluxeePink outline-none bg-transparent cursor-pointer" />
+              <input type="month" v-model="selectedPeriod" min="2026-01" :max="maxMonth" class="font-black text-pluxeePink outline-none bg-transparent cursor-pointer" />
             </div>
           </div>
         </div>
@@ -73,7 +73,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, onUnmounted, watch } from 'vue'
+  import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
   import { useRouter } from 'vue-router'
   import { useToast } from '@/composables/useToast'
   import { usePeriod } from '@/composables/usePeriod'
@@ -146,6 +146,13 @@
   const escucharConfigCambios = event => {
     if (event.key === 'reporte_config_actualizada') fetchConfigs()
   }
+
+  const maxMonth = computed(() => {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = String(today.getMonth() + 1).padStart(2, '0')
+    return `${year}-${month}`
+  })
 
   // Si cambiamos de mes, refrescamos los paneles
   watch(selectedPeriod, () => {
