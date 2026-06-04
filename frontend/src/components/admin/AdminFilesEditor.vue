@@ -105,7 +105,7 @@
         <div class="w-10 h-10 bg-[#0e76a8] rounded-full flex items-center justify-center text-white shadow-sm">
           <i class="fab fa-facebook-f text-lg"></i>
         </div>
-        <h2 class="text-2xl font-black text-gray-800 uppercase">Archivos de LinkedId</h2>
+        <h2 class="text-2xl font-black text-gray-800 uppercase">Archivos de LinkedIn</h2>
       </div>
 
       <p class="text-gray-500 my-2">Actualiza los archivos CSV arrastrándolos a su categoría correspondiente.</p>

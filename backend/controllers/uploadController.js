@@ -240,6 +240,7 @@ const processCsvUpload = async (req, res) => {
               if (keyTotalFollowers && row[keyTotalFollowers]) {
                 kpis = {
                   total_followers: parseInt(row[keyTotalFollowers]) || 0,
+                  new_followers: parseInt(row[keys.find(k => k.includes('Nuevos seguidores (Overall'))]) || 0,
                   engagement_rate: parseFloat(row[keys.find(k => k.includes('Page engagement rate'))]) || 0,
 
                   ig_post_impressions: parseInt(row[keys.find(k => k.includes('Impresiones de publicaciones'))]) || 0,

@@ -6,7 +6,7 @@
     <!-- <pre>{{ data }}</pre> -->
     <div class="flex-1 flex flex-col justify-start p-4 w-full">
       <div class="max-w-7xl mx-auto w-full">
-        <h1 class="text-2xl font-bold text-pluxeeBlue">Social Media Report - {{ data.kpis.month }}</h1>
+        <!-- <h1 class="text-2xl font-bold text-pluxeeBlue">Social Media Report - {{ data.kpis.month }}</h1> -->
         <div class="w-full">
           <div class="max-w-7xl mx-auto py-4">
             <div class="w-full h-48 bg-gray-200 rounded-2xl overflow-hidden relative border-x border-b border-gray-200">
@@ -24,10 +24,10 @@
               <KpiCard title="Total followers" :value="formatNumber(data.kpis.total_followers)" :diff="data.kpis.followers_diff" />
               <KpiCard title="Clicks organic Link" :value="formatNumber(data.kpis.clics)" />
               <KpiCard title="Post shares" :value="data.kpis.shares" />
-              <!-- <KpiCard title="Responding" :value="data.kpis.responding" /> -->
+              <!-- <KpiCard title="Responding" :value="data.kpis.responding" v-if="config.fb_show_responding !== false" /> -->
               <KpiCard title="Post engagement rate" :value="data.kpis.post_engagement_rate" :diff="data.kpis.post_engagement_rate_diff" />
               <KpiCard title="Post impressions" :value="formatNumber(data.kpis.post_impressions)" :diff="data.kpis.post_impressions_diff" />
-              <!-- <KpiCard title="Response time" :value="data.kpis.response_time" /> -->
+              <!-- <KpiCard title="Response time" :value="data.kpis.response_time" v-if="config.fb_show_response_time !== false" /> -->
               <KpiCard title="Page organic reach" :value="formatNumber(data.kpis.page_organic_reach)" />
               <KpiCard title="Views from non-followers" :value="formatNumber(data.kpis.page_no_followers_views)" />
               <KpiCard title="Views from followers" :value="formatNumber(data.kpis.page_followers_views)" />

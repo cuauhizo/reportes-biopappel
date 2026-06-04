@@ -99,6 +99,8 @@
     { key: 'fb_show_sentiment', label: 'Sentimiento (Facebook)', desc: 'Muestra la gráfica de pastel de comunidad' },
     { key: 'ig_show_stories', label: 'Métricas de Stories', desc: 'Oculta taps forward, back y exits' },
     { key: 'li_show_post_reactions', label: 'Reacciones a publicaciones', desc: 'Muestra u oculta Reacciones a publicaciones en LinkedIn' },
+    // { key: 'fb_show_responding', label: 'Respuestas a publicaciones', desc: 'Respuestas a publicaciones' },
+    // { key: 'fb_show_response_time', label: 'Tiempo de respuesta a publicaciones', desc: 'Tiempo de respuesta a publicaciones' },
   ]
 
   const cargarConfiguraciones = async () => {

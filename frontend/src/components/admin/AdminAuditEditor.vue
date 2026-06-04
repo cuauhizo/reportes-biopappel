@@ -126,6 +126,10 @@
         <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Story: Exits</label>
         <input v-model="formData.ig_story_exits" type="number" class="w-full bg-white border border-gray-300 rounded px-2 py-1 outline-none focus:border-pink-500 font-bold text-gray-700" />
       </div>
+      <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
+        <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">News Followers</label>
+        <input v-model="formData.new_followers" type="number" class="w-full bg-white border border-gray-300 rounded px-2 py-1 outline-none focus:border-pink-500 font-bold text-gray-700" />
+      </div>
 
       <div class="col-span-2 md:col-span-4 mt-2">
         <h4 class="text-xs font-bold text-gray-400 uppercase border-b border-gray-200 pb-1 mb-3">Alcances Máximos</h4>

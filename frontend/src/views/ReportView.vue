@@ -145,7 +145,7 @@
 
 <template>
   <div class="font-sans text-gray-800 bg-gray-50">
-    <div class="bg-pluxeeBlue p-1 flex justify-center items-center gap-4 text-white absolute w-full print:hidden z-20">
+    <div class="bg-pluxeeBlue p-1 flex justify-center items-center gap-4 text-white fixed w-full print:hidden z-20">
       <span class="text-xs font-bold uppercase tracking-widest opacity-70">Viendo reporte de:</span>
       <input type="month" v-model="selectedPeriod" min="2026-01" :max="maxMonth" class="bg-white/10 border border-white/20 rounded-lg px-3 py-1 font-black outline-none cursor-pointer hover:bg-white/20 transition" />
     </div>
