@@ -29,6 +29,22 @@
           class="px-4 py-1.5 rounded-md font-bold text-sm transition-colors">
           LinkedIn
         </button>
+
+        <button
+          v-if="configs.general_show_tiktok !== false"
+          @click="redSeleccionada = 'tk'"
+          :class="redSeleccionada === 'tk' ? 'bg-black text-white' : 'text-gray-500 hover:text-gray-700'"
+          class="px-4 py-1.5 rounded-md font-bold text-sm transition-colors">
+          TikTok
+        </button>
+
+        <button
+          v-if="configs.general_show_x !== false"
+          @click="redSeleccionada = 'x'"
+          :class="redSeleccionada === 'x' ? 'bg-gray-800 text-white' : 'text-gray-500 hover:text-gray-700'"
+          class="px-4 py-1.5 rounded-md font-bold text-sm transition-colors">
+          X
+        </button>
       </div>
     </div>
 
@@ -222,6 +238,10 @@
       </div>
     </div>
 
+    <div v-else-if="redSeleccionada === 'tk'" class="grid grid-cols-2 md:grid-cols-4 gap-4">contenido TK</div>
+
+    <div v-else-if="redSeleccionada === 'x'" class="grid grid-cols-2 md:grid-cols-4 gap-4">contenido X</div>
+
     <div v-if="datosCargados" class="mt-10 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
       <div @click="desgloseAbierto = !desgloseAbierto" class="bg-gray-50 px-6 py-4 border-b border-gray-200 cursor-pointer flex justify-between items-center hover:bg-gray-100 transition-colors">
         <h3 class="text-sm font-black text-gray-700 uppercase tracking-widest flex items-center">Desglose Diario (Seguidores y Posts)</h3>
@@ -313,6 +333,8 @@
     if (configs.value.general_show_facebook !== false) redSeleccionada.value = 'fb'
     else if (configs.value.general_show_instagram !== false) redSeleccionada.value = 'ig'
     else if (configs.value.general_show_linkedin !== false) redSeleccionada.value = 'li'
+    else if (configs.value.general_show_tiktok !== false) redSeleccionada.value = 'tk'
+    else if (configs.value.general_show_x !== false) redSeleccionada.value = 'x'
   }
 
   // Cargar datos

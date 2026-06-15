@@ -8,6 +8,8 @@
   import FacebookSection from '@/components/FacebookSection.vue'
   import InstagramSection from '@/components/InstagramSection.vue'
   import LinkedInSection from '@/components/LinkedInSection.vue'
+  import TiktokSection from '@/components/TiktokSection.vue'
+  import XSection from '@/components/XSection.vue'
   import BenchmarkSection from '@/components/BenchmarkSection.vue'
   import CustomerServiceSection from '@/components/CustomerServiceSection.vue'
   import FrequentComplainsSection from '@/components/FrequentComplainsSection.vue'
@@ -177,6 +179,8 @@
       <BenchmarkSection v-if="reportData.config.general_show_benchmarking !== false" :data="reportData.benchmarking" :insights="reportData.benchmarkInsights" />
       <InstagramSection v-if="reportData.config.general_show_instagram !== false" :data="reportData.instagram" :config="reportData.config || {}" />
       <LinkedInSection v-if="reportData.config.general_show_linkedin !== false" :data="reportData.linkedin" :config="reportData.config || {}" />
+      <TiktokSection v-if="reportData.config.general_show_tiktok !== false" :data="reportData.tiktok" :config="reportData.config || {}" />
+      <XSection v-if="reportData.config.general_show_x !== false" :data="reportData.x" :config="reportData.config || {}" />
       <CustomerServiceSection v-if="reportData.config.general_show_customerService !== false" :data="reportData.customerService" />
       <FrequentComplainsSection v-if="reportData.config.general_show_frequentComplains !== false" :data="reportData.customerService" />
       <NextStepsSection v-if="reportData.config.general_show_nextSteps !== false" :data="reportData.nextSteps" />

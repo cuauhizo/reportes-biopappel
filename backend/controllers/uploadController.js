@@ -1,7 +1,8 @@
-// backend/controllers/uploadController.js
 const { pool } = require('../utils/db')
 const csv = require('csv-parser')
 const { Readable } = require('stream')
+const tkParser = require('../services/parsers/tiktokParser')
+const xParser = require('../services/parsers/xParser')
 
 // Generador de IDs únicos para posts
 // 🚀 FIX 2: ID blindado contra solapamiento de fechas y multi-idioma
@@ -53,6 +54,32 @@ const processCsvUpload = async (req, res) => {
           } else if (type === 'li_posts') {
             prefijo = 'li'
             tabla = 'li_posts_metrics'
+          } else if (type === 'tk_posts') {
+            // 🚀 1. Le pasamos el trabajo sucio al Parser
+            const parsedData = tkParser.parseTikTokPosts(results, periodo)
+
+            // 🚀 2. Borramos los del mes y guardamos los nuevos
+            await connection.query('DELETE FROM tk_posts_metrics WHERE periodo = ?', [periodo])
+            for (const p of parsedData.posts) {
+              await connection.query(
+                `INSERT INTO tk_posts_metrics (periodo, date, permalink, post_message, media_type, tags, campaign, video_views, reach, likes, comments, shares, engagement_rate)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [p.periodo, p.date, p.permalink, p.post_message, p.media_type, p.tags, p.campaign, p.video_views, p.reach, p.likes, p.comments, p.shares, p.engagement_rate],
+              )
+            }
+          } else if (type === 'x_posts') {
+            // 🚀 1. Parser de X
+            const parsedData = xParser.parseXPosts(results, periodo)
+
+            // 🚀 2. Guardado
+            await connection.query('DELETE FROM x_posts_metrics WHERE periodo = ?', [periodo])
+            for (const p of parsedData.posts) {
+              await connection.query(
+                `INSERT INTO x_posts_metrics (periodo, date, permalink, post_message, media_type, tags, campaign, impressions, reposts, quote_tweets, likes, replies, url_clicks, engagement_rate)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [p.periodo, p.date, p.permalink, p.post_message, p.media_type, p.tags, p.campaign, p.impressions, p.reposts, p.quote_tweets, p.likes, p.replies, p.url_clicks, p.engagement_rate],
+              )
+            }
           }
 
           await connection.query(`DELETE FROM ${tabla} WHERE periodo = ?`, [periodo])
@@ -149,9 +176,9 @@ const processCsvUpload = async (req, res) => {
         // ==========================================
         // 3. PROCESAR OVERVIEWS (Métricas globales, Histórico Diario y Ciudades)
         // ==========================================
-        else if (type === 'fb_overview' || type === 'ig_overview' || type === 'li_overview') {
-          // const red_social = type === 'fb_overview' ? 'fb' : 'ig'
-          const red_social = type === 'fb_overview' ? 'fb' : type === 'ig_overview' ? 'ig' : 'li'
+        else if (type.includes('overview')) {
+          // Extraemos la red social del nombre dinámicamente (ej: de 'tk_overview' sacamos 'tk')
+          const red_social = type.split('_')[0]
 
           await connection.query('DELETE FROM network_kpis WHERE periodo = ? AND red_social = ?', [periodo, red_social])
           await connection.query('DELETE FROM historical_followers WHERE periodo = ? AND red_social = ?', [periodo, red_social])
@@ -165,155 +192,147 @@ const processCsvUpload = async (req, res) => {
             maxReel = 0,
             maxStory = 0
 
-          for (const row of results) {
-            const keys = Object.keys(row)
-            const keyDate = keys.find(k => k.toLowerCase().includes('date') || k.toLowerCase().includes('fecha'))
-            const dateVal = keyDate && row[keyDate] ? row[keyDate].split(' ')[0] : null
+          // 🚀 A. REDES NUEVAS: Usamos los Parsers Inteligentes (Patrón Factory)
+          if (type === 'tk_overview') {
+            const parsedData = tkParser.parseTikTokOverview(results, periodo)
+            kpis = parsedData.kpis
+            historical = parsedData.followers
+          } else if (type === 'x_overview') {
+            const parsedData = xParser.parseXOverview(results, periodo)
+            kpis = parsedData.kpis
+            historical = parsedData.followers
+          }
+          // 🚀 B. REDES CLÁSICAS: Lógica original de lectura fila por fila
+          else {
+            for (const row of results) {
+              const keys = Object.keys(row)
+              const keyDate = keys.find(k => k.toLowerCase().includes('date') || k.toLowerCase().includes('fecha'))
+              const dateVal = keyDate && row[keyDate] ? row[keyDate].split(' ')[0] : null
 
-            if (type === 'fb_overview') {
-              const keyTotalFollowers = keys.find(k => k.includes('Total followers'))
-              const keyFollowersForTable = keys.find(k => k.includes('Seguidores (This column might contain'))
-              const keyInteractions = keys.find(k => k.includes('Interacciones de la página'))
-              const keyDailyPosts = keys.find(k => k.toLowerCase().includes('publicaciones (daily') || k.toLowerCase().includes('posts (daily'))
+              if (type === 'fb_overview') {
+                const keyTotalFollowers = keys.find(k => k.includes('Total followers'))
+                const keyFollowersForTable = keys.find(k => k.includes('Seguidores (This column might contain'))
+                const keyInteractions = keys.find(k => k.includes('Interacciones de la página'))
+                const keyDailyPosts = keys.find(k => k.toLowerCase().includes('publicaciones (daily') || k.toLowerCase().includes('posts (daily'))
 
-              // A. Histórico Diario
-              if (dateVal && !dateVal.toLowerCase().includes('total')) {
-                let daily = parseInt(row[keyFollowersForTable]) || parseInt(row[keyTotalFollowers]) || 0
-                let dailyPosts = parseInt(row[keyDailyPosts]) || 0
-                if (daily > 0 || dailyPosts > 0) historical.push({ fecha: dateVal, followers: daily, posts: dailyPosts })
-              }
-
-              // B. KPIs Globales (Buscamos la fila donde vienen todos los totales juntos)
-              if (keyInteractions && row[keyInteractions] && keyTotalFollowers && row[keyTotalFollowers]) {
-                kpis = {
-                  total_followers: parseInt(row[keyTotalFollowers]) || 0,
-                  new_followers: parseInt(row[keys.find(k => k.includes('Nuevos seguidores'))]) || 0,
-                  engagement_rate: parseFloat(row[keys.find(k => k.includes('Post engagement rate'))]) || 0,
-
-                  fb_page_organic_reach: parseInt(row[keys.find(k => k.includes('Alcance orgánico de la página'))]) || 0,
-                  fb_page_followers_views: parseInt(row[keys.find(k => k.includes('Visualizaciones de seguidores'))]) || 0,
-                  fb_page_no_followers_views: parseInt(row[keys.find(k => k.includes('Vistas de página de no seguidores'))]) || 0,
-                  fb_post_impressions: parseInt(row[keys.find(k => k.includes('Impresiones orgánicas'))]) || 0,
-                  fb_interactions: parseInt(row[keyInteractions]) || 0,
-                  fb_clics: parseInt(row[keys.find(k => k.includes('Post link clicks'))]) || 0,
-                  fb_shares: parseInt(row[keys.find(k => k.includes('Post shares'))]) || 0,
-                  fb_comments: parseInt(row[keys.find(k => k.includes('Comentarios y respuestas'))]) || 0,
-                  fb_time_visualization: row[keys.find(k => k.includes('Tiempo de visualización'))] || '0',
+                if (dateVal && !dateVal.toLowerCase().includes('total')) {
+                  let daily = parseInt(row[keyFollowersForTable]) || parseInt(row[keyTotalFollowers]) || 0
+                  let dailyPosts = parseInt(row[keyDailyPosts]) || 0
+                  if (daily > 0 || dailyPosts > 0) historical.push({ fecha: dateVal, followers: daily, posts: dailyPosts })
                 }
 
-                // C. Ciudades Top
-                const cityKeys = keys.filter(k => k.includes('Seguidores de la página > Ciudad'))
-                cityKeys.forEach(k => {
-                  let cityName = k.includes('Other') ? 'Other' : k.split('Ciudad - ')[1]?.split(' (')[0] || ''
-                  if (cityName !== 'Other' && cityName.includes(',')) cityName = `${cityName.split(',')[0].trim()}, ${cityName.split(',')[1].trim()}`
-                  const f = parseInt(row[k]) || 0
-                  if (f > 0) cities.push({ name: cityName.trim(), followers: f })
-                })
-              }
-            } else {
-              // Lógica IG
-              const keyTotalFollowers = keys.find(k => k.includes('Followers') && !k.includes('Daily'))
-              const keyHistoryFollowers = keys.find(k => k.includes('Seguidores (Daily'))
-              const keyDailyPosts = keys.find(k => k.toLowerCase().includes('publicaciones (daily') || k.toLowerCase().includes('posts (daily'))
+                if (keyInteractions && row[keyInteractions] && keyTotalFollowers && row[keyTotalFollowers]) {
+                  kpis = {
+                    total_followers: parseInt(row[keyTotalFollowers]) || 0,
+                    new_followers: parseInt(row[keys.find(k => k.includes('Nuevos seguidores'))]) || 0,
+                    engagement_rate: parseFloat(row[keys.find(k => k.includes('Post engagement rate'))]) || 0,
+                    fb_page_organic_reach: parseInt(row[keys.find(k => k.includes('Alcance orgánico de la página'))]) || 0,
+                    fb_page_followers_views: parseInt(row[keys.find(k => k.includes('Visualizaciones de seguidores'))]) || 0,
+                    fb_page_no_followers_views: parseInt(row[keys.find(k => k.includes('Vistas de página de no seguidores'))]) || 0,
+                    fb_post_impressions: parseInt(row[keys.find(k => k.includes('Impresiones orgánicas'))]) || 0,
+                    fb_interactions: parseInt(row[keyInteractions]) || 0,
+                    fb_clics: parseInt(row[keys.find(k => k.includes('Post link clicks'))]) || 0,
+                    fb_shares: parseInt(row[keys.find(k => k.includes('Post shares'))]) || 0,
+                    fb_comments: parseInt(row[keys.find(k => k.includes('Comentarios y respuestas'))]) || 0,
+                    fb_time_visualization: row[keys.find(k => k.includes('Tiempo de visualización'))] || '0',
+                  }
 
-              const keyReachCarousel = keys.find(k => k.includes('Post reach - Carousel'))
-              const keyReachPhoto = keys.find(k => k.includes('Post reach - Photo'))
-              const keyReachReel = keys.find(k => k.includes('Post reach - Reel'))
-              const keyReachStory = keys.find(k => k.includes('Post reach - Story'))
+                  const cityKeys = keys.filter(k => k.includes('Seguidores de la página > Ciudad'))
+                  cityKeys.forEach(k => {
+                    let cityName = k.includes('Other') ? 'Other' : k.split('Ciudad - ')[1]?.split(' (')[0] || ''
+                    if (cityName !== 'Other' && cityName.includes(',')) cityName = `${cityName.split(',')[0].trim()}, ${cityName.split(',')[1].trim()}`
+                    const f = parseInt(row[k]) || 0
+                    if (f > 0) cities.push({ name: cityName.trim(), followers: f })
+                  })
+                }
+              } else if (type === 'ig_overview') {
+                const keyTotalFollowers = keys.find(k => k.includes('Followers') && !k.includes('Daily'))
+                const keyHistoryFollowers = keys.find(k => k.includes('Seguidores (Daily'))
+                const keyDailyPosts = keys.find(k => k.toLowerCase().includes('publicaciones (daily') || k.toLowerCase().includes('posts (daily'))
 
-              if (keyReachCarousel) maxCarousel = Math.max(maxCarousel, parseInt(row[keyReachCarousel]) || 0)
-              if (keyReachPhoto) maxPhoto = Math.max(maxPhoto, parseInt(row[keyReachPhoto]) || 0)
-              if (keyReachReel) maxReel = Math.max(maxReel, parseInt(row[keyReachReel]) || 0)
-              if (keyReachStory) maxStory = Math.max(maxStory, parseInt(row[keyReachStory]) || 0)
+                const keyReachCarousel = keys.find(k => k.includes('Post reach - Carousel'))
+                const keyReachPhoto = keys.find(k => k.includes('Post reach - Photo'))
+                const keyReachReel = keys.find(k => k.includes('Post reach - Reel'))
+                const keyReachStory = keys.find(k => k.includes('Post reach - Story'))
 
-              // if (dateVal && !dateVal.toLowerCase().includes('total')) {
-              //   let daily = parseInt(row[keyHistoryFollowers]) || 0
-              //   if (daily >= 0) historical.push({ fecha: dateVal, followers: daily })
-              // }
+                if (keyReachCarousel) maxCarousel = Math.max(maxCarousel, parseInt(row[keyReachCarousel]) || 0)
+                if (keyReachPhoto) maxPhoto = Math.max(maxPhoto, parseInt(row[keyReachPhoto]) || 0)
+                if (keyReachReel) maxReel = Math.max(maxReel, parseInt(row[keyReachReel]) || 0)
+                if (keyReachStory) maxStory = Math.max(maxStory, parseInt(row[keyReachStory]) || 0)
 
-              if (dateVal && !dateVal.toLowerCase().includes('total')) {
-                let daily = parseInt(row[keyHistoryFollowers]) || 0
-                let dailyPosts = parseInt(row[keyDailyPosts]) || 0
-                if (daily >= 0 || dailyPosts > 0) historical.push({ fecha: dateVal, followers: daily, posts: dailyPosts })
-              }
-
-              if (keyTotalFollowers && row[keyTotalFollowers]) {
-                kpis = {
-                  total_followers: parseInt(row[keyTotalFollowers]) || 0,
-                  new_followers: parseInt(row[keys.find(k => k.includes('Nuevos seguidores (Overall'))]) || 0,
-                  engagement_rate: parseFloat(row[keys.find(k => k.includes('Page engagement rate'))]) || 0,
-
-                  ig_post_impressions: parseInt(row[keys.find(k => k.includes('Impresiones de publicaciones'))]) || 0,
-                  ig_post_likes: parseInt(row[keys.find(k => k.includes('Post likes'))]) || 0,
-                  ig_post_saves: parseInt(row[keys.find(k => k.includes('Post saves'))]) || 0,
-                  ig_story_taps_forward: parseInt(row[keys.find(k => k.includes('Story taps forward'))]) || 0,
-                  ig_story_taps_back: parseInt(row[keys.find(k => k.includes('Story taps back'))]) || 0,
-                  ig_story_exits: parseInt(row[keys.find(k => k.includes('Story exits'))]) || 0,
+                if (dateVal && !dateVal.toLowerCase().includes('total')) {
+                  let daily = parseInt(row[keyHistoryFollowers]) || 0
+                  let dailyPosts = parseInt(row[keyDailyPosts]) || 0
+                  if (daily >= 0 || dailyPosts > 0) historical.push({ fecha: dateVal, followers: daily, posts: dailyPosts })
                 }
 
-                const cityKeys = keys.filter(k => k.includes('Audience > City') || k.includes('Seguidores de la página > Ciudad'))
-                cityKeys.forEach(k => {
-                  let cityName = k.includes('Other') ? 'Other' : k.split('City - ')[1]?.split(' (')[0] || k.split('Ciudad - ')[1]?.split(' (')[0] || ''
-                  if (cityName !== 'Other' && cityName.includes(',')) cityName = `${cityName.split(',')[0].trim()}, ${cityName.split(',')[1].trim()}`
-                  const f = parseInt(row[k]) || 0
-                  if (f > 0) cities.push({ name: cityName.trim(), followers: f })
-                })
-              }
-            }
+                if (keyTotalFollowers && row[keyTotalFollowers]) {
+                  kpis = {
+                    total_followers: parseInt(row[keyTotalFollowers]) || 0,
+                    new_followers: parseInt(row[keys.find(k => k.includes('Nuevos seguidores (Overall'))]) || 0,
+                    engagement_rate: parseFloat(row[keys.find(k => k.includes('Page engagement rate'))]) || 0,
+                    ig_post_impressions: parseInt(row[keys.find(k => k.includes('Impresiones de publicaciones'))]) || 0,
+                    ig_post_likes: parseInt(row[keys.find(k => k.includes('Post likes'))]) || 0,
+                    ig_post_saves: parseInt(row[keys.find(k => k.includes('Post saves'))]) || 0,
+                    ig_story_taps_forward: parseInt(row[keys.find(k => k.includes('Story taps forward'))]) || 0,
+                    ig_story_taps_back: parseInt(row[keys.find(k => k.includes('Story taps back'))]) || 0,
+                    ig_story_exits: parseInt(row[keys.find(k => k.includes('Story exits'))]) || 0,
+                  }
 
-            if (type === 'li_overview') {
-              // const keyTotalFollowers = keys.find(k => k.includes('Seguidores (Overall aggregated value') && !k.includes('This column'))
-              // const keyFollowersForTable = keys.find(k => k.includes('Seguidores (This column might contain'))
-
-              const keyTotalFollowers = keys.find(k => (k.startsWith('Seguidores (Overall aggregated value') || k.startsWith('Followers (Overall')) && !k.includes('This column'))
-              const keyHistoryFollowers = keys.find(k => k.includes('Seguidores (Daily'))
-              const keyDailyPosts = keys.find(k => k.toLowerCase().includes('publicaciones (daily') || k.toLowerCase().includes('posts (daily'))
-
-              // A. Histórico Diario
-              if (dateVal && !dateVal.toLowerCase().includes('total')) {
-                let daily = parseInt(row[keyHistoryFollowers]) || 0
-                let dailyPosts = parseInt(row[keyDailyPosts]) || 0
-
-                if (daily > 0 || dailyPosts > 0) {
-                  historical.push({ fecha: dateVal, followers: daily, posts: dailyPosts })
-                  // Como LI no tiene fila de totales, el total es el último día registrado
-                  kpis.total_followers = daily
+                  const cityKeys = keys.filter(k => k.includes('Audience > City') || k.includes('Seguidores de la página > Ciudad'))
+                  cityKeys.forEach(k => {
+                    let cityName = k.includes('Other') ? 'Other' : k.split('City - ')[1]?.split(' (')[0] || k.split('Ciudad - ')[1]?.split(' (')[0] || ''
+                    if (cityName !== 'Other' && cityName.includes(',')) cityName = `${cityName.split(',')[0].trim()}, ${cityName.split(',')[1].trim()}`
+                    const f = parseInt(row[k]) || 0
+                    if (f > 0) cities.push({ name: cityName.trim(), followers: f })
+                  })
                 }
-              }
+              } else if (type === 'li_overview') {
+                const keyTotalFollowers = keys.find(k => (k.startsWith('Seguidores (Overall aggregated value') || k.startsWith('Followers (Overall')) && !k.includes('This column'))
+                const keyHistoryFollowers = keys.find(k => k.includes('Seguidores (Daily'))
+                const keyDailyPosts = keys.find(k => k.toLowerCase().includes('publicaciones (daily') || k.toLowerCase().includes('posts (daily'))
 
-              // Guardar en historical_followers igual que FB e IG
-              if (keyTotalFollowers && row[keyTotalFollowers]) {
-                kpis = {
-                  total_followers: parseInt(row[keyTotalFollowers]) || 0,
-                  new_followers: parseInt(row[keys.find(k => k.includes('Nuevos seguidores netos'))]) || 0,
-                  engagement_rate: parseFloat(row[keys.find(k => k.includes('Porcentaje de interacción con publicación'))]) || 0,
+                if (dateVal && !dateVal.toLowerCase().includes('total')) {
+                  let daily = parseInt(row[keyHistoryFollowers]) || 0
+                  let dailyPosts = parseInt(row[keyDailyPosts]) || 0
 
-                  li_page_reach: parseFloat(row[keys.find(k => k.includes('Alcance de página (Overall aggregated value'))]) || 0,
-                  li_page_engagements_rate: parseFloat(row[keys.find(k => k.includes('Porcentaje de interacción con la página (Overall aggregated value'))]) || 0,
-                  li_page_clicks: parseInt(row[keys.find(k => k.includes('Clics en página'))]) || 0,
-                  li_page_comments: parseInt(row[keys.find(k => k.includes('Comentarios de página'))]) || 0,
-                  li_page_shares: parseInt(row[keys.find(k => k.includes('Comparticiones de página'))]) || 0,
-                  li_page_engagement: parseInt(row[keys.find(k => k.includes('Interacción con páginas'))]) || 0,
-                  li_posts: parseInt(row[keys.find(k => k.includes('Publicaciones (Overall aggregated value'))]) || 0,
-                  li_post_reactions: parseInt(row[keys.find(k => k.includes('Reacciones a publicaciones'))]) || 0,
-                  li_post_comments: parseInt(row[keys.find(k => k.includes('Comentarios en publicación'))]) || 0,
-                  li_post_reach: parseInt(row[keys.find(k => k.includes('Alcance de publicaciones'))]) || 0,
-                  li_post_video_viewers: parseInt(row[keys.find(k => k.includes('Espectadores de vídeos de publicaciones'))]) || 0,
+                  if (daily > 0 || dailyPosts > 0) {
+                    historical.push({ fecha: dateVal, followers: daily, posts: dailyPosts })
+                    kpis.total_followers = daily // Último día registrado
+                  }
                 }
 
-                const cityKeys = keys.filter(k => k.includes('Seguidores -'))
-                cityKeys.forEach(k => {
-                  let cityName = k.includes('Other') ? 'Other' : k.split('Seguidores - ')[1]?.split(' (')[0] || ''
-                  if (cityName !== 'Other' && cityName.includes(',')) cityName = `${cityName.split(',')[0].trim()}, ${cityName.split(',')[1].trim()}`
-                  const f = parseInt(row[k]) || 0
-                  if (f > 0) cities.push({ name: cityName.trim(), followers: f })
-                })
+                if (keyTotalFollowers && row[keyTotalFollowers]) {
+                  kpis = {
+                    total_followers: parseInt(row[keyTotalFollowers]) || 0,
+                    new_followers: parseInt(row[keys.find(k => k.includes('Nuevos seguidores netos'))]) || 0,
+                    engagement_rate: parseFloat(row[keys.find(k => k.includes('Porcentaje de interacción con publicación'))]) || 0,
+                    li_page_reach: parseFloat(row[keys.find(k => k.includes('Alcance de página (Overall aggregated value'))]) || 0,
+                    li_page_engagements_rate: parseFloat(row[keys.find(k => k.includes('Porcentaje de interacción con la página (Overall aggregated value'))]) || 0,
+                    li_page_clicks: parseInt(row[keys.find(k => k.includes('Clics en página'))]) || 0,
+                    li_page_comments: parseInt(row[keys.find(k => k.includes('Comentarios de página'))]) || 0,
+                    li_page_shares: parseInt(row[keys.find(k => k.includes('Comparticiones de página'))]) || 0,
+                    li_page_engagement: parseInt(row[keys.find(k => k.includes('Interacción con páginas'))]) || 0,
+                    li_posts: parseInt(row[keys.find(k => k.includes('Publicaciones (Overall aggregated value'))]) || 0,
+                    li_post_reactions: parseInt(row[keys.find(k => k.includes('Reacciones a publicaciones'))]) || 0,
+                    li_post_comments: parseInt(row[keys.find(k => k.includes('Comentarios en publicación'))]) || 0,
+                    li_post_reach: parseInt(row[keys.find(k => k.includes('Alcance de publicaciones'))]) || 0,
+                    li_post_video_viewers: parseInt(row[keys.find(k => k.includes('Espectadores de vídeos de publicaciones'))]) || 0,
+                  }
+
+                  const cityKeys = keys.filter(k => k.includes('Seguidores -'))
+                  cityKeys.forEach(k => {
+                    let cityName = k.includes('Other') ? 'Other' : k.split('Seguidores - ')[1]?.split(' (')[0] || ''
+                    if (cityName !== 'Other' && cityName.includes(',')) cityName = `${cityName.split(',')[0].trim()}, ${cityName.split(',')[1].trim()}`
+                    const f = parseInt(row[k]) || 0
+                    if (f > 0) cities.push({ name: cityName.trim(), followers: f })
+                  })
+                }
               }
-              // Guardar los totales en kpis = { ... }
-            }
+            } // Fin del for clásico
           }
 
-          // GUARDAMOS TODO EN MYSQL
+          // GUARDAMOS TODO EN MYSQL DE GOLPE (Sea red nueva o clásica)
           if (Object.keys(kpis).length > 0) {
             if (type === 'ig_overview') {
               kpis.ig_reach_carousel = maxCarousel
@@ -323,8 +342,6 @@ const processCsvUpload = async (req, res) => {
             }
             const cols = Object.keys(kpis)
             const vals = Object.values(kpis)
-
-            // 🚀 FIX 4: ON DUPLICATE KEY UPDATE dinámico
             const updateStr = cols.map(col => `${col}=VALUES(${col})`).join(', ')
 
             await connection.query(

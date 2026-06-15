@@ -1,6 +1,5 @@
 const { pool } = require('../utils/db')
 const { getSocialMetrics } = require('../hootsuiteService')
-// 🚀 ¡Adiós csvService.js! Ya no lo necesitamos.
 
 // 🛠️ Función auxiliar para agrupar sentimientos de MySQL
 const formatSentiment = rows => {
@@ -28,8 +27,7 @@ const calculateTags = posts => {
       .split(',')
       .map(t => t.trim())
       .filter(t => t !== '')
-    // const metricVal = post.visitas > 0 ? post.visitas : post.alcance
-    // const metricVal = post.visitas > 0 ? post.visitas : 0
+
     const metricVal = post.visitas || post.impresiones || post.alcance || 0
 
     if (metricVal > 0 && tagsArray.length > 0) {
@@ -71,74 +69,98 @@ const getReportData = async (req, res) => {
       pool.query('SELECT * FROM fb_posts_metrics WHERE periodo = ? ORDER BY visitas DESC', [periodId]), // 0
       pool.query('SELECT * FROM ig_posts_metrics WHERE periodo = ? ORDER BY visitas DESC', [periodId]), // 1
       pool.query('SELECT * FROM li_posts_metrics WHERE periodo = ? ORDER BY impresiones DESC', [periodId]), // 2
+
       pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [periodId, 'fb']), // 3
       pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [periodId, 'ig']), // 4
       pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [periodId, 'li']), // 5
+
       pool.query('SELECT * FROM historical_followers WHERE periodo = ? AND red_social = ? ORDER BY fecha ASC', [periodId, 'fb']), // 6
       pool.query('SELECT * FROM historical_followers WHERE periodo = ? AND red_social = ? ORDER BY fecha ASC', [periodId, 'ig']), // 7
       pool.query('SELECT * FROM historical_followers WHERE periodo = ? AND red_social = ? ORDER BY fecha ASC', [periodId, 'li']), // 8
+
       pool.query('SELECT * FROM top_cities WHERE periodo = ? AND red_social = ? ORDER BY followers DESC', [periodId, 'fb']), // 9
       pool.query('SELECT * FROM top_cities WHERE periodo = ? AND red_social = ? ORDER BY followers DESC', [periodId, 'ig']), // 10
       pool.query('SELECT * FROM top_cities WHERE periodo = ? AND red_social = ? ORDER BY followers DESC', [periodId, 'li']), // 11
+
       pool.query('SELECT * FROM inbound_sentiment WHERE periodo = ? AND red_social = ?', [periodId, 'fb']), // 12
       pool.query('SELECT * FROM inbound_sentiment WHERE periodo = ? AND red_social = ?', [periodId, 'ig']), // 13
+
       pool.query('SELECT * FROM benchmark_competitors WHERE periodo = ? ORDER BY is_main_brand DESC, followers DESC', [periodId]), // 14
       pool.query('SELECT post_id, image_url FROM post_images'), // 15
-      getSocialMetrics(), // 16. Hootsuite API (Nombres y Avatares en vivo)
-      pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [prevPeriodId, 'fb']), // 13
-      pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [prevPeriodId, 'ig']), // 14
-      pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [prevPeriodId, 'li']), // 15
+      getSocialMetrics(), // 16
+
+      pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [prevPeriodId, 'fb']), // 17
+      pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [prevPeriodId, 'ig']), // 18
+      pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [prevPeriodId, 'li']), // 19
+
+      // TIKTOK (Índices 20, 21, 22)
+      pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [periodId, 'tk']), // 20
+      pool.query('SELECT * FROM historical_followers WHERE periodo = ? AND red_social = ? ORDER BY fecha ASC', [periodId, 'tk']), // 21
+      pool.query('SELECT * FROM tk_posts_metrics WHERE periodo = ? ORDER BY video_views DESC LIMIT 10', [periodId]), // 22
+
+      // X/TWITTER (Índices 23, 24, 25)
+      pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [periodId, 'x']), // 23
+      pool.query('SELECT * FROM historical_followers WHERE periodo = ? AND red_social = ? ORDER BY fecha ASC', [periodId, 'x']), // 24
+      pool.query('SELECT * FROM x_posts_metrics WHERE periodo = ? ORDER BY impressions DESC LIMIT 10', [periodId]), // 25
     ]
 
     const results = await Promise.allSettled(promises)
     const getSafeValue = (index, defaultValue) => (results[index].status === 'fulfilled' ? results[index].value : defaultValue)
 
-    // Extraemos resultados (Los arrays de MySQL vienen dentro de otro array `[rows, fields]`)
+    // Extraemos resultados FB, IG, LI
     const fbPostsRaw = getSafeValue(0, [[]])[0]
     const igPostsRaw = getSafeValue(1, [[]])[0]
     const liPostsRaw = getSafeValue(2, [[]])[0]
     const fbOverview = getSafeValue(3, [[{}]])[0][0] || {}
     const igOverview = getSafeValue(4, [[{}]])[0][0] || {}
     const liOverview = getSafeValue(5, [[{}]])[0][0] || {}
+
     const mapHistory = h => ({
       date: h.fecha ? new Date(h.fecha).toISOString().split('T')[0] : null,
       followers: h.followers,
-      posts: h.published_posts || 0, // 🚀 Nuevo dato extraído de la BD
+      posts: h.published_posts || 0,
     })
 
     const fbHistory = getSafeValue(6, [[]])[0].map(mapHistory)
     const igHistory = getSafeValue(7, [[]])[0].map(mapHistory)
     const liHistory = getSafeValue(8, [[]])[0].map(mapHistory)
-    // Función para procesar ciudades y forzar "Other" al final
+
     const processCities = rows => {
       const cities = rows.map(c => ({ name: c.city_name, followers: c.followers }))
       const otherCity = cities.find(c => c.name.toLowerCase() === 'other' || c.name.toLowerCase() === 'otros')
       const normalCities = cities.filter(c => c.name.toLowerCase() !== 'other' && c.name.toLowerCase() !== 'otros')
-
-      // Si existe "Other", lo empujamos al fondo de la lista
       if (otherCity) normalCities.push(otherCity)
-
       return normalCities
     }
 
-    // Aplicamos la función a Facebook e Instagram
     const fbCities = processCities(getSafeValue(9, [[]])[0])
     const igCities = processCities(getSafeValue(10, [[]])[0])
     const liCities = processCities(getSafeValue(11, [[]])[0])
+
     const fbSent = formatSentiment(getSafeValue(12, [[]])[0])
     const igSent = formatSentiment(getSafeValue(13, [[]])[0])
+
     const dbCompetitors = getSafeValue(14, [[]])[0]
     const dbImages = getSafeValue(15, [[]])[0]
     const hootsuiteData = getSafeValue(16, null)
+
     const fbOverviewPrev = getSafeValue(17, [[{}]])[0][0] || {}
     const igOverviewPrev = getSafeValue(18, [[{}]])[0][0] || {}
     const liOverviewPrev = getSafeValue(19, [[{}]])[0][0] || {}
+
+    const tkOverview = getSafeValue(20, [[{}]])[0][0] || {}
+    const tkHistory = getSafeValue(21, [[]])[0].map(mapHistory)
+    const tkPostsRaw = getSafeValue(22, [[]])[0]
+
+    const xOverview = getSafeValue(23, [[{}]])[0][0] || {}
+    const xHistory = getSafeValue(24, [[]])[0].map(mapHistory)
+    const xPostsRaw = getSafeValue(25, [[]])[0]
 
     // Calculadora de Porcentajes MoM
     const calcDiff = (curr, prev) => {
       const c = Number(curr) || 0
       const p = Number(prev) || 0
-      if (p === 0 && c === 0) return null // No hay cambios
+      if (p === 0 && c === 0) return null
       if (p === 0) return { pct: '100%', increase: true }
       const diff = c - p
       const pct = (diff / p) * 100
@@ -152,14 +174,9 @@ const getReportData = async (req, res) => {
       const customImg = dbImages.find(img => img.post_id === p.id)
 
       let defaultImg
-
-      if (red === 'fb') {
-        defaultImg = 'https://placehold.co/300x400/a5d031/ffffff?text=Post+Sin+Imagen'
-      } else if (red === 'ig') {
-        defaultImg = 'https://placehold.co/300x400/d72d23/ffffff?text=IG+Sin+Imagen'
-      } else {
-        defaultImg = 'https://placehold.co/300x400/0e76a8/ffffff?text=LI+Sin+Imagen'
-      }
+      if (red === 'fb') defaultImg = 'https://placehold.co/300x400/a5d031/ffffff?text=Post+Sin+Imagen'
+      else if (red === 'ig') defaultImg = 'https://placehold.co/300x400/d72d23/ffffff?text=IG+Sin+Imagen'
+      else defaultImg = 'https://placehold.co/300x400/0e76a8/ffffff?text=LI+Sin+Imagen'
 
       if (tipo.includes('STORY')) defaultImg = 'https://placehold.co/300x400/17ccf9/ffffff?text=IG+Story'
 
@@ -295,6 +312,16 @@ const getReportData = async (req, res) => {
         trendPosts: trendPostsLi,
         reachByTags: liTags,
       },
+      tiktok: {
+        kpis: tkOverview,
+        historicalFollowers: tkHistory,
+        posts: tkPostsRaw,
+      },
+      x: {
+        kpis: xOverview,
+        historicalFollowers: xHistory,
+        posts: xPostsRaw,
+      },
       benchmarking: dbCompetitors,
     }
 
@@ -315,6 +342,8 @@ const resetPeriod = async (req, res) => {
     'fb_posts_metrics',
     'ig_posts_metrics',
     'li_posts_metrics',
+    'tk_posts_metrics',
+    'x_posts_metrics',
     'network_kpis',
     'historical_followers',
     'top_cities',

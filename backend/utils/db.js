@@ -193,6 +193,49 @@ async function initDB() {
       )
     `)
 
+    // TABLA PARA POSTS DE TIKTOK
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS tk_posts_metrics (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        periodo VARCHAR(7) NOT NULL,
+        date DATETIME NOT NULL,
+        permalink VARCHAR(255),
+        post_message TEXT,
+        media_type VARCHAR(50) DEFAULT 'Video',
+        tags TEXT,               -- ¡Añadido!
+        campaign VARCHAR(255),   -- ¡Añadido!
+        video_views INT DEFAULT 0,
+        reach INT DEFAULT 0,     -- ¡Añadido!
+        likes INT DEFAULT 0,
+        comments INT DEFAULT 0,
+        shares INT DEFAULT 0,
+        engagement_rate DECIMAL(10,2) DEFAULT 0.00,
+        KEY idx_periodo (periodo)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `)
+
+    // TABLA PARA POSTS DE X (TWITTER)
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS x_posts_metrics (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        periodo VARCHAR(7) NOT NULL,
+        date DATETIME NOT NULL,
+        permalink VARCHAR(255),
+        post_message TEXT,
+        media_type VARCHAR(50),
+        tags TEXT,               -- ¡Añadido!
+        campaign VARCHAR(255),   -- ¡Añadido!
+        impressions INT DEFAULT 0,
+        reposts INT DEFAULT 0,
+        quote_tweets INT DEFAULT 0, -- ¡Añadido!
+        likes INT DEFAULT 0,
+        replies INT DEFAULT 0,
+        url_clicks INT DEFAULT 0,
+        engagement_rate DECIMAL(10,2) DEFAULT 0.00,
+        KEY idx_periodo (periodo)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `)
+
     // Resumen de Sentimientos (Inbound)
     await connection.query(`
       CREATE TABLE IF NOT EXISTS inbound_sentiment (
@@ -287,7 +330,7 @@ async function initDB() {
   }
 }
 
-initDB()
+// initDB()
 
 // Agrega esto en backend/utils/db.js antes de getTokens
 
@@ -329,6 +372,29 @@ async function actualizarTablasParaHistorial() {
       }
     }
 
+    // 🚀 AGREGAR COLUMNAS DE TIKTOK Y X A LOS KPIs GLOBALES
+    try {
+      await connection.query(`
+        ALTER TABLE network_kpis 
+        ADD COLUMN tk_video_views INT DEFAULT 0,
+        ADD COLUMN tk_likes INT DEFAULT 0,
+        ADD COLUMN tk_comments INT DEFAULT 0,
+        ADD COLUMN tk_shares INT DEFAULT 0,
+        ADD COLUMN tk_reach INT DEFAULT 0,
+        
+        ADD COLUMN x_impressions INT DEFAULT 0,
+        ADD COLUMN x_reposts INT DEFAULT 0,
+        ADD COLUMN x_likes INT DEFAULT 0,
+        ADD COLUMN x_replies INT DEFAULT 0,
+        ADD COLUMN x_url_clicks INT DEFAULT 0
+      `)
+      console.log(`✅ Columnas de TikTok y X agregadas a network_kpis.`)
+    } catch (err) {
+      if (err.code !== 'ER_DUP_FIELDNAME') {
+        console.error(`Error alterando network_kpis (TikTok/X):`, err.message)
+      }
+    }
+
     connection.release()
     console.log('🚀 ¡Base de datos lista para manejar meses dinámicos!')
   } catch (error) {
@@ -337,7 +403,7 @@ async function actualizarTablasParaHistorial() {
 }
 
 // Descomenta esto, guarda el archivo (la terminal correrá la función), y luego lo vuelves a comentar.
-actualizarTablasParaHistorial()
+// actualizarTablasParaHistorial()
 
 // 3. Función para OBTENER el token actual
 const getTokens = async () => {

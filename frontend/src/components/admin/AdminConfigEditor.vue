@@ -90,6 +90,8 @@
     { key: 'general_show_facebook', label: 'Sección Facebook', color: 'bg-pluxeeBlue' },
     { key: 'general_show_instagram', label: 'Sección Instagram', color: 'bg-pluxeeBlue' },
     { key: 'general_show_linkedin', label: 'Sección LinkedIn', color: 'bg-pluxeeBlue' },
+    { key: 'general_show_tiktok', label: 'Sección TikTok', color: 'bg-black' },
+    { key: 'general_show_x', label: 'Sección X (Twitter)', color: 'bg-gray-800' },
     { key: 'general_show_customerService', label: 'Sección Customer Service', color: 'bg-pluxeeBlue' },
     { key: 'general_show_frequentComplains', label: 'Sección Frequent Complains', color: 'bg-pluxeeBlue' },
     { key: 'general_show_nextSteps', label: 'Sección Next Steps', color: 'bg-pluxeeBlue' },
@@ -99,8 +101,8 @@
     { key: 'fb_show_sentiment', label: 'Sentimiento (Facebook)', desc: 'Muestra la gráfica de pastel de comunidad' },
     { key: 'ig_show_stories', label: 'Métricas de Stories', desc: 'Oculta taps forward, back y exits' },
     { key: 'li_show_post_reactions', label: 'Reacciones a publicaciones', desc: 'Muestra u oculta Reacciones a publicaciones en LinkedIn' },
-    // { key: 'fb_show_responding', label: 'Respuestas a publicaciones', desc: 'Respuestas a publicaciones' },
-    // { key: 'fb_show_response_time', label: 'Tiempo de respuesta a publicaciones', desc: 'Tiempo de respuesta a publicaciones' },
+    { key: 'fb_show_responding', label: 'Respuestas a publicaciones', desc: 'Respuestas a publicaciones' },
+    { key: 'fb_show_response_time', label: 'Tiempo de respuesta a publicaciones', desc: 'Tiempo de respuesta a publicaciones' },
   ]
 
   const cargarConfiguraciones = async () => {

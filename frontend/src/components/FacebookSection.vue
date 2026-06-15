@@ -24,10 +24,10 @@
               <KpiCard title="Total followers" :value="formatNumber(data.kpis.total_followers)" :diff="data.kpis.followers_diff" />
               <KpiCard title="Clicks organic Link" :value="formatNumber(data.kpis.clics)" />
               <KpiCard title="Post shares" :value="data.kpis.shares" />
-              <!-- <KpiCard title="Responding" :value="data.kpis.responding" v-if="config.fb_show_responding !== false" /> -->
+              <KpiCard title="Responding" :value="data.kpis.responding" v-if="config.fb_show_responding !== false" />
               <KpiCard title="Post engagement rate" :value="data.kpis.post_engagement_rate" :diff="data.kpis.post_engagement_rate_diff" />
               <KpiCard title="Post impressions" :value="formatNumber(data.kpis.post_impressions)" :diff="data.kpis.post_impressions_diff" />
-              <!-- <KpiCard title="Response time" :value="data.kpis.response_time" v-if="config.fb_show_response_time !== false" /> -->
+              <KpiCard title="Response time" :value="data.kpis.response_time" v-if="config.fb_show_response_time !== false" />
               <KpiCard title="Page organic reach" :value="formatNumber(data.kpis.page_organic_reach)" />
               <KpiCard title="Views from non-followers" :value="formatNumber(data.kpis.page_no_followers_views)" />
               <KpiCard title="Views from followers" :value="formatNumber(data.kpis.page_followers_views)" />

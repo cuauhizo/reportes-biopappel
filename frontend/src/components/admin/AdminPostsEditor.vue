@@ -29,6 +29,22 @@
           class="px-4 py-1.5 rounded-md font-bold text-sm transition-colors">
           LinkedIn
         </button>
+
+        <button
+          v-if="configs.general_show_tiktok !== false"
+          @click="redSeleccionada = 'tk'"
+          :class="redSeleccionada === 'tk' ? 'bg-black text-white' : 'text-gray-500 hover:text-gray-700'"
+          class="px-4 py-1.5 rounded-md font-bold text-sm transition-colors">
+          TikTok
+        </button>
+
+        <button
+          v-if="configs.general_show_x !== false"
+          @click="redSeleccionada = 'x'"
+          :class="redSeleccionada === 'x' ? 'bg-gray-800 text-white' : 'text-gray-500 hover:text-gray-700'"
+          class="px-4 py-1.5 rounded-md font-bold text-sm transition-colors">
+          X
+        </button>
       </div>
     </div>
     <!-- <pre>{{ posts.slice(0, 1) }}</pre> -->
@@ -80,16 +96,28 @@
             </td>
             <td class="py-3 px-1 align-top">
               <input v-if="redSeleccionada === 'li'" v-model="post.impresiones" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
+              <input v-else-if="redSeleccionada === 'x'" v-model="post.impressions" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
+              <input v-else-if="redSeleccionada === 'tk'" v-model="post.video_views" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
               <input v-else v-model="post.visitas" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
             </td>
-            <td class="py-3 px-1 align-top"><input v-model="post.alcance" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" /></td>
-            <td class="py-3 px-1 align-top"><input v-model="post.interacciones" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" /></td>
+            <td class="py-3 px-1 align-top">
+              <input v-if="redSeleccionada === 'tk'" v-model="post.reach" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
+              <input v-else v-model="post.alcance" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
+            </td>
+            <td class="py-3 px-1 align-top">
+              <input v-if="redSeleccionada === 'tk' || redSeleccionada === 'x'" v-model="post.likes" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
+              <input v-else v-model="post.interacciones" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
+            </td>
             <!-- <td class=" py-3 px-1 align-top"><input v-model="post.likes" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" /></td> -->
-            <td class="py-3 px-1 align-top"><input v-model="post.shares" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" /></td>
+            <td class="py-3 px-1 align-top">
+              <input v-if="redSeleccionada === 'x'" v-model="post.reposts" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
+              <input v-else v-model="post.shares" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
+            </td>
             <td class="py-3 px-1 align-top">
               <input v-if="redSeleccionada === 'li'" v-model="post.comentarios" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
-              <input v-else-if="redSeleccionada === 'ig'" v-model="post.shares" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
-              <input v-else v-model="post.shares" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
+              <input v-else-if="redSeleccionada === 'tk'" v-model="post.comments" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
+              <input v-else-if="redSeleccionada === 'x'" v-model="post.replies" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
+              <input v-else-if="redSeleccionada === 'ig'" v-model="post.saves" type="number" class="w-full p-2 border border-gray-200 rounded-lg outline-none focus:border-blue-500 text-center font-bold text-gray-700" />
             </td>
 
             <td class="py-3 text-center align-top">
@@ -142,10 +170,13 @@
     if (configs.value.general_show_facebook !== false) redSeleccionada.value = 'fb'
     else if (configs.value.general_show_instagram !== false) redSeleccionada.value = 'ig'
     else if (configs.value.general_show_linkedin !== false) redSeleccionada.value = 'li'
+    else if (configs.value.general_show_tiktok !== false) redSeleccionada.value = 'tk'
+    else if (configs.value.general_show_x !== false) redSeleccionada.value = 'x'
   }
 
   // Cargar posts
   const fetchPosts = async () => {
+    posts.value = []
     try {
       // Cargamos los posts Y las imágenes subidas al mismo tiempo
       const [postsData, imagesData] = await Promise.all([apiRequest(`/api/posts?periodo=${selectedPeriod.value}&red_social=${redSeleccionada.value}`), apiRequest(`/api/post-images`, { cache: 'no-store' })])
@@ -156,8 +187,15 @@
 
       // Asignamos la imagen a cada post
       posts.value = postsData.map(p => {
-        let defaultImg =
-          redSeleccionada.value === 'fb' ? 'https://placehold.co/150x150/1877F2/ffffff?text=FB' : redSeleccionada.value === 'li' ? 'https://placehold.co/150x150/0a66c2/ffffff?text=LI' : 'https://placehold.co/150x150/e1306c/ffffff?text=IG'
+        // let defaultImg =
+        //   redSeleccionada.value === 'fb' ? 'https://placehold.co/150x150/1877F2/ffffff?text=FB' : redSeleccionada.value === 'li' ? 'https://placehold.co/150x150/0a66c2/ffffff?text=LI' : 'https://placehold.co/150x150/e1306c/ffffff?text=IG'
+        let defaultImg
+        if (redSeleccionada.value === 'fb') defaultImg = 'https://placehold.co/150x150/1877F2/ffffff?text=FB'
+        else if (redSeleccionada.value === 'li') defaultImg = 'https://placehold.co/150x150/0a66c2/ffffff?text=LI'
+        else if (redSeleccionada.value === 'ig') defaultImg = 'https://placehold.co/150x150/e1306c/ffffff?text=IG'
+        else if (redSeleccionada.value === 'tk') defaultImg = 'https://placehold.co/150x150/000000/ffffff?text=TikTok'
+        else if (redSeleccionada.value === 'x') defaultImg = 'https://placehold.co/150x150/1f2937/ffffff?text=X'
+        else defaultImg = 'https://placehold.co/150x150/cccccc/ffffff?text=Post'
 
         if (p.tipo_post && p.tipo_post.toUpperCase().includes('STORY')) {
           defaultImg = 'https://placehold.co/150x150/fcb045/ffffff?text=Story'
