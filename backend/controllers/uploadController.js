@@ -44,7 +44,35 @@ const processCsvUpload = async (req, res) => {
         // ==========================================
         // 1. PROCESAR MÉTRICAS DE POSTS (FB e IG)
         // ==========================================
-        if (type === 'fb_posts' || type === 'ig_posts' || type === 'li_posts') {
+        if (type === 'tk_posts') {
+          // 🚀 1. Le pasamos el trabajo al Parser de TikTok
+          const parsedData = tkParser.parseTikTokPosts(results, periodo)
+          // 🚀 2. Borramos los del mes y guardamos los nuevos
+          await connection.query('DELETE FROM tk_posts_metrics WHERE periodo = ?', [periodo])
+          for (const p of parsedData.posts) {
+            await connection.query(
+              `INSERT INTO tk_posts_metrics (periodo, date, permalink, post_message, media_type, campaign, video_views, reach, likes, comments, shares, engagement_rate, tags)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              [p.periodo, p.date, p.permalink, p.post_message, p.media_type, p.campaign, p.video_views, p.reach, p.likes, p.comments, p.shares, p.engagement_rate, p.tags],
+            )
+          }
+        } else if (type === 'x_posts') {
+          // 🚀 1. Parser de X
+          const parsedData = xParser.parseXPosts(results, periodo)
+
+          // 🚀 2. Guardado
+          await connection.query('DELETE FROM x_posts_metrics WHERE periodo = ?', [periodo])
+
+          for (const p of parsedData.posts) {
+            // Consulta SQL con las columnas reales de la tabla de X
+            await connection.query(
+              `INSERT INTO x_posts_metrics (periodo, date, permalink, post_message, media_type, campaign, impressions, reposts, quote_tweets, likes, replies, url_clicks, engagement_rate, tags)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              [p.periodo, p.date, p.permalink, p.post_message, p.media_type, p.campaign, p.impressions, p.reposts, p.quote_tweets, p.likes, p.replies, p.url_clicks, p.engagement_rate, p.tags],
+            )
+          }
+        } else if (type === 'fb_posts' || type === 'ig_posts' || type === 'li_posts') {
+          // 🚀 AQUÍ EMPIEZA TU LÓGICA CLÁSICA INTACTA
           let prefijo = 'fb'
           let tabla = 'fb_posts_metrics'
 
@@ -54,42 +82,13 @@ const processCsvUpload = async (req, res) => {
           } else if (type === 'li_posts') {
             prefijo = 'li'
             tabla = 'li_posts_metrics'
-          } else if (type === 'tk_posts') {
-            // 🚀 1. Le pasamos el trabajo sucio al Parser
-            const parsedData = tkParser.parseTikTokPosts(results, periodo)
-
-            // 🚀 2. Borramos los del mes y guardamos los nuevos
-            await connection.query('DELETE FROM tk_posts_metrics WHERE periodo = ?', [periodo])
-            for (const p of parsedData.posts) {
-              await connection.query(
-                `INSERT INTO tk_posts_metrics (periodo, date, permalink, post_message, media_type, tags, campaign, video_views, reach, likes, comments, shares, engagement_rate)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [p.periodo, p.date, p.permalink, p.post_message, p.media_type, p.tags, p.campaign, p.video_views, p.reach, p.likes, p.comments, p.shares, p.engagement_rate],
-              )
-            }
-          } else if (type === 'x_posts') {
-            // 🚀 1. Parser de X
-            const parsedData = xParser.parseXPosts(results, periodo)
-
-            // 🚀 2. Guardado
-            await connection.query('DELETE FROM x_posts_metrics WHERE periodo = ?', [periodo])
-            for (const p of parsedData.posts) {
-              await connection.query(
-                `INSERT INTO x_posts_metrics (periodo, date, permalink, post_message, media_type, tags, campaign, impressions, reposts, quote_tweets, likes, replies, url_clicks, engagement_rate)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [p.periodo, p.date, p.permalink, p.post_message, p.media_type, p.tags, p.campaign, p.impressions, p.reposts, p.quote_tweets, p.likes, p.replies, p.url_clicks, p.engagement_rate],
-              )
-            }
           }
 
           await connection.query(`DELETE FROM ${tabla} WHERE periodo = ?`, [periodo])
 
           for (const row of results) {
-            // 🚀 FIX 1: Evitar duplicados ignorando las fotos hijas de los carruseles/documentos
             const tipoPostStr = String(row['Post Type'] || row['Tipo de publicación'] || 'POST').toUpperCase()
-            if (tipoPostStr.includes('ITEM')) {
-              continue // Salta esta iteración, no lo guarda en la BD
-            }
+            if (tipoPostStr.includes('ITEM')) continue // Ignorar carruseles hijos
 
             const mensaje = row['POST MESSAGE'] || row['Post Message'] || ''
             const tipoPost = row['POST TYPE'] || row['Post Type'] || ''

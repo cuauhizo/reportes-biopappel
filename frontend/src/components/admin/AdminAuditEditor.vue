@@ -238,9 +238,81 @@
       </div>
     </div>
 
-    <div v-else-if="redSeleccionada === 'tk'" class="grid grid-cols-2 md:grid-cols-4 gap-4">contenido TK</div>
+    <!-- <div v-else-if="redSeleccionada === 'tk'" class="grid grid-cols-2 md:grid-cols-4 gap-4">contenido TK</div>
 
-    <div v-else-if="redSeleccionada === 'x'" class="grid grid-cols-2 md:grid-cols-4 gap-4">contenido X</div>
+    <div v-else-if="redSeleccionada === 'x'" class="grid grid-cols-2 md:grid-cols-4 gap-4">contenido X</div> -->
+
+    <div v-else-if="redSeleccionada === 'tk'" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-gray-100 p-3 rounded-xl border border-gray-300">
+        <label class="text-[10px] font-bold text-gray-800 uppercase block mb-1">Total Followers</label>
+        <input v-model="formData.total_followers" type="number" class="w-full bg-white border border-gray-300 rounded px-2 py-1 outline-none focus:border-black font-bold text-gray-700" />
+      </div>
+      <div class="bg-gray-100 p-3 rounded-xl border border-gray-300">
+        <label class="text-[10px] font-bold text-gray-800 uppercase block mb-1">Engagement Rate (%)</label>
+        <input v-model="formData.engagement_rate" type="number" step="0.01" class="w-full bg-white border border-gray-300 rounded px-2 py-1 outline-none focus:border-black font-bold text-gray-700" />
+      </div>
+      <div class="bg-gray-100 p-3 rounded-xl border border-gray-300">
+        <label class="text-[10px] font-bold text-gray-800 uppercase block mb-1">Vistas de Video</label>
+        <input v-model="formData.tk_video_views" type="number" class="w-full bg-white border border-gray-300 rounded px-2 py-1 outline-none focus:border-black font-bold text-gray-700" />
+      </div>
+      <div class="bg-gray-100 p-3 rounded-xl border border-gray-300">
+        <label class="text-[10px] font-bold text-gray-800 uppercase block mb-1">Likes Totales</label>
+        <input v-model="formData.tk_likes" type="number" class="w-full bg-white border border-gray-300 rounded px-2 py-1 outline-none focus:border-black font-bold text-gray-700" />
+      </div>
+
+      <div class="col-span-2 md:col-span-4 mt-2">
+        <h4 class="text-xs font-bold text-gray-400 uppercase border-b border-gray-200 pb-1 mb-3">Métricas Secundarias</h4>
+      </div>
+
+      <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
+        <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Comentarios</label>
+        <input v-model="formData.tk_comments" type="number" class="w-full bg-white border border-gray-300 rounded px-2 py-1 outline-none focus:border-black font-bold text-gray-700" />
+      </div>
+      <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
+        <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Compartidos (Shares)</label>
+        <input v-model="formData.tk_shares" type="number" class="w-full bg-white border border-gray-300 rounded px-2 py-1 outline-none focus:border-black font-bold text-gray-700" />
+      </div>
+      <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
+        <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Alcance (Reach)</label>
+        <input v-model="formData.tk_reach" type="number" class="w-full bg-white border border-gray-300 rounded px-2 py-1 outline-none focus:border-black font-bold text-gray-700" />
+      </div>
+    </div>
+
+    <div v-else-if="redSeleccionada === 'x'" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-slate-100 p-3 rounded-xl border border-slate-300">
+        <label class="text-[10px] font-bold text-slate-800 uppercase block mb-1">Total Followers</label>
+        <input v-model="formData.total_followers" type="number" class="w-full bg-white border border-slate-300 rounded px-2 py-1 outline-none focus:border-slate-800 font-bold text-gray-700" />
+      </div>
+      <div class="bg-slate-100 p-3 rounded-xl border border-slate-300">
+        <label class="text-[10px] font-bold text-slate-800 uppercase block mb-1">Engagement Rate (%)</label>
+        <input v-model="formData.engagement_rate" type="number" step="0.01" class="w-full bg-white border border-slate-300 rounded px-2 py-1 outline-none focus:border-slate-800 font-bold text-gray-700" />
+      </div>
+      <div class="bg-slate-100 p-3 rounded-xl border border-slate-300">
+        <label class="text-[10px] font-bold text-slate-800 uppercase block mb-1">Impresiones</label>
+        <input v-model="formData.x_impressions" type="number" class="w-full bg-white border border-slate-300 rounded px-2 py-1 outline-none focus:border-slate-800 font-bold text-gray-700" />
+      </div>
+      <div class="bg-slate-100 p-3 rounded-xl border border-slate-300">
+        <label class="text-[10px] font-bold text-slate-800 uppercase block mb-1">Likes Totales</label>
+        <input v-model="formData.x_likes" type="number" class="w-full bg-white border border-slate-300 rounded px-2 py-1 outline-none focus:border-slate-800 font-bold text-gray-700" />
+      </div>
+
+      <div class="col-span-2 md:col-span-4 mt-2">
+        <h4 class="text-xs font-bold text-gray-400 uppercase border-b border-gray-200 pb-1 mb-3">Métricas Secundarias</h4>
+      </div>
+
+      <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
+        <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Reposts (Retweets)</label>
+        <input v-model="formData.x_reposts" type="number" class="w-full bg-white border border-gray-300 rounded px-2 py-1 outline-none focus:border-slate-800 font-bold text-gray-700" />
+      </div>
+      <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
+        <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Respuestas (Replies)</label>
+        <input v-model="formData.x_replies" type="number" class="w-full bg-white border border-gray-300 rounded px-2 py-1 outline-none focus:border-slate-800 font-bold text-gray-700" />
+      </div>
+      <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
+        <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1">Clics en enlace</label>
+        <input v-model="formData.x_url_clicks" type="number" class="w-full bg-white border border-gray-300 rounded px-2 py-1 outline-none focus:border-slate-800 font-bold text-gray-700" />
+      </div>
+    </div>
 
     <div v-if="datosCargados" class="mt-10 bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
       <div @click="desgloseAbierto = !desgloseAbierto" class="bg-gray-50 px-6 py-4 border-b border-gray-200 cursor-pointer flex justify-between items-center hover:bg-gray-100 transition-colors">

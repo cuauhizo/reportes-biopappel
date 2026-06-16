@@ -96,12 +96,16 @@ const getReportData = async (req, res) => {
       // TIKTOK (Índices 20, 21, 22)
       pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [periodId, 'tk']), // 20
       pool.query('SELECT * FROM historical_followers WHERE periodo = ? AND red_social = ? ORDER BY fecha ASC', [periodId, 'tk']), // 21
-      pool.query('SELECT * FROM tk_posts_metrics WHERE periodo = ? ORDER BY video_views DESC LIMIT 10', [periodId]), // 22
+      pool.query('SELECT * FROM tk_posts_metrics WHERE periodo = ? ORDER BY video_views DESC', [periodId]), // 22
 
       // X/TWITTER (Índices 23, 24, 25)
       pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [periodId, 'x']), // 23
       pool.query('SELECT * FROM historical_followers WHERE periodo = ? AND red_social = ? ORDER BY fecha ASC', [periodId, 'x']), // 24
-      pool.query('SELECT * FROM x_posts_metrics WHERE periodo = ? ORDER BY impressions DESC LIMIT 10', [periodId]), // 25
+      pool.query('SELECT * FROM x_posts_metrics WHERE periodo = ? ORDER BY impressions DESC', [periodId]), // 25
+
+      // 🚀 NUEVO: Traer KPIs del mes pasado para calcular diferencias
+      pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [prevPeriodId, 'tk']), // 26
+      pool.query('SELECT * FROM network_kpis WHERE periodo = ? AND red_social = ?', [prevPeriodId, 'x']), // 27
     ]
 
     const results = await Promise.allSettled(promises)
@@ -147,6 +151,8 @@ const getReportData = async (req, res) => {
     const fbOverviewPrev = getSafeValue(17, [[{}]])[0][0] || {}
     const igOverviewPrev = getSafeValue(18, [[{}]])[0][0] || {}
     const liOverviewPrev = getSafeValue(19, [[{}]])[0][0] || {}
+    const tkOverviewPrev = getSafeValue(26, [[{}]])[0][0] || {}
+    const xOverviewPrev = getSafeValue(27, [[{}]])[0][0] || {}
 
     const tkOverview = getSafeValue(20, [[{}]])[0][0] || {}
     const tkHistory = getSafeValue(21, [[]])[0].map(mapHistory)
@@ -176,7 +182,10 @@ const getReportData = async (req, res) => {
       let defaultImg
       if (red === 'fb') defaultImg = 'https://placehold.co/300x400/a5d031/ffffff?text=Post+Sin+Imagen'
       else if (red === 'ig') defaultImg = 'https://placehold.co/300x400/d72d23/ffffff?text=IG+Sin+Imagen'
-      else defaultImg = 'https://placehold.co/300x400/0e76a8/ffffff?text=LI+Sin+Imagen'
+      else if (red === 'li') defaultImg = 'https://placehold.co/300x400/0e76a8/ffffff?text=LI+Sin+Imagen'
+      else if (red === 'tk') defaultImg = 'https://placehold.co/300x400/0e76a8/ffffff?text=TK+Sin+Imagen'
+      else if (red === 'x') defaultImg = 'https://placehold.co/300x400/0e76a8/ffffff?text=X+Sin+Imagen'
+      else defaultImg = 'https://placehold.co/300x400/0e76a8/ffffff?text=Sin+Imagen'
 
       if (tipo.includes('STORY')) defaultImg = 'https://placehold.co/300x400/17ccf9/ffffff?text=IG+Story'
 
@@ -313,12 +322,22 @@ const getReportData = async (req, res) => {
         reachByTags: liTags,
       },
       tiktok: {
-        kpis: tkOverview,
+        kpis: {
+          ...tkOverview,
+          followers_diff: calcDiff(tkOverview.total_followers, tkOverviewPrev.total_followers),
+          new_followers_diff: calcDiff(tkOverview.new_followers, tkOverviewPrev.new_followers),
+          engagement_rate_diff: calcDiff(tkOverview.engagement_rate, tkOverviewPrev.engagement_rate),
+        },
         historicalFollowers: tkHistory,
         posts: tkPostsRaw,
       },
       x: {
-        kpis: xOverview,
+        kpis: {
+          ...xOverview,
+          followers_diff: calcDiff(xOverview.total_followers, xOverviewPrev.total_followers),
+          new_followers_diff: calcDiff(xOverview.new_followers, xOverviewPrev.new_followers),
+          engagement_rate_diff: calcDiff(xOverview.engagement_rate, xOverviewPrev.engagement_rate),
+        },
         historicalFollowers: xHistory,
         posts: xPostsRaw,
       },

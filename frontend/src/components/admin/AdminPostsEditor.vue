@@ -58,17 +58,41 @@
 
     <div v-else class="overflow-x-auto">
       <table class="w-full text-left text-sm border-collapse min-w-[1000px]">
-        <thead>
+        <!-- <thead>
           <tr class="text-gray-400 text-[10px] uppercase tracking-widest border-b-2 border-gray-100">
             <th class="pb-2 w-64">Post Original</th>
             <th class="pb-2 w-40">Etiquetas (Tags)</th>
             <th class="pb-2 w-20 text-center">Vistas</th>
             <th class="pb-2 w-20 text-center">Alcance</th>
             <th class="pb-2 w-20 text-center">Interacc.</th>
-            <!-- <th class=" pb-2 w-20 text-center">Likes</th> -->
             <th class="pb-2 w-20 text-center">Shares</th>
             <th v-if="redSeleccionada === 'ig' || redSeleccionada === 'fb'" class="pb-2 w-20 text-center">Saves</th>
             <th v-else class="pb-2 w-20 text-center">Comentarios</th>
+            <th class="text-black pb-2 text-center w-16">Acción</th>
+          </tr>
+        </thead> -->
+        <thead>
+          <tr class="text-gray-400 text-[10px] uppercase tracking-widest border-b-2 border-gray-100">
+            <th class="pb-2 w-64">Post Original</th>
+            <th class="pb-2 w-40">Etiquetas (Tags)</th>
+            <!-- Vistas / Impresiones -->
+            <th class="pb-2 w-20 text-center">
+              {{ redSeleccionada === 'x' || redSeleccionada === 'li' ? 'Impresiones' : 'Vistas' }}
+            </th>
+            <!-- Alcance -->
+            <th class="pb-2 w-20 text-center">Alcance</th>
+            <!-- Interacciones / Likes -->
+            <th class="pb-2 w-20 text-center">
+              {{ redSeleccionada === 'tk' || redSeleccionada === 'x' ? 'Likes' : 'Interacc.' }}
+            </th>
+            <!-- Shares / Reposts -->
+            <th class="pb-2 w-20 text-center">
+              {{ redSeleccionada === 'x' ? 'Reposts' : 'Shares' }}
+            </th>
+            <!-- Saves / Comentarios / Replies -->
+            <th class="pb-2 w-20 text-center">
+              {{ redSeleccionada === 'ig' || redSeleccionada === 'fb' ? 'Saves' : redSeleccionada === 'x' ? 'Replies' : 'Comentarios' }}
+            </th>
             <th class="text-black pb-2 text-center w-16">Acción</th>
           </tr>
         </thead>

@@ -40,12 +40,16 @@
     <!-- <pre>{{ postsParaEditar }}</pre> -->
     <div v-if="postsParaEditar.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
       <div v-for="post in postsParaEditar" :key="post.id" class="bg-white border border-gray-200 p-4 rounded-2xl shadow-sm flex flex-col items-center text-center hover:shadow-md transition">
-        <div class="w-full h-40 bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center border border-gray-100">
+        <!-- <div class="w-full h-40 bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center border border-gray-100">
           <img v-if="post.picture" :src="post.picture" @error="$event.target.src = 'https://placehold.co/300x400/17ccf9/ffffff?text=Story+Sin+Imagen'" class="w-full h-full object-cover" />
           <div v-else class="flex flex-col items-center text-gray-400">
             <span class="text-3xl mb-1">🖼️</span>
             <p class="text-[10px] font-bold uppercase">Sin imagen</p>
           </div>
+        </div> -->
+        <!-- Contenedor de Imagen Inteligente -->
+        <div class="w-full h-40 bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center border border-gray-100">
+          <img :src="post.picture || getFallbackImage(post.red_social)" @error="$event.target.src = getFallbackImage(post.red_social)" class="w-full h-full object-cover transition hover:scale-105 duration-300" />
         </div>
 
         <div class="mb-3 w-full">
@@ -60,10 +64,22 @@
 
         <div class="mb-3 w-full flex justify-between items-center">
           <span
-            :class="post.red_social === 'facebook' ? 'text-blue-700 bg-blue-50 border-blue-200' : post.red_social === 'linkedin' ? 'text-[#0a66c2] bg-[#0a66c2]/10 border-[#0a66c2]/30' : 'text-pink-700 bg-pink-50 border-pink-200'"
+            :class="
+              post.red_social === 'facebook'
+                ? 'text-blue-700 bg-blue-50 border-blue-200'
+                : post.red_social === 'linkedin'
+                  ? 'text-[#0a66c2] bg-[#0a66c2]/10 border-[#0a66c2]/30'
+                  : post.red_social === 'tiktok'
+                    ? 'text-white bg-black border-gray-800'
+                    : post.red_social === 'x'
+                      ? 'text-white bg-slate-800 border-slate-900'
+                      : 'text-pink-700 bg-pink-50 border-pink-200'
+            "
             class="border px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider flex items-center gap-1 shadow-sm">
             <span v-if="post.red_social === 'facebook'">FB</span>
             <span v-else-if="post.red_social === 'linkedin'">LI</span>
+            <span v-else-if="post.red_social === 'tiktok'">TK</span>
+            <span v-else-if="post.red_social === 'x'">X</span>
             <span v-else>IG</span>
           </span>
 
@@ -72,12 +88,28 @@
           </span>
         </div>
 
-        <div class="w-full flex justify-between items-center">
+        <!-- <div class="w-full flex justify-between items-center">
           <p class="text-xs font-black text-gray-600 mb-4">Vistas: {{ formatNumber(post.views) }}</p>
           <p class="text-xs font-black text-gray-600 mb-4">Fecha: {{ formatDate(post.date) }}</p>
         </div>
 
-        <p class="text-xs text-gray-600 mb-4 line-clamp-3 h-12 overflow-hidden italic" :title="post.text">"{{ post.text }}"</p>
+        <p class="text-xs text-gray-600 mb-4 line-clamp-3 break-words h-12 overflow-hidden italic" :title="post.text">"{{ post.text }}"</p> -->
+
+        <div class="w-full flex justify-between items-center mb-3">
+          <p class="text-[11px] font-black text-gray-600">
+            Vistas:
+            <span class="text-gray-900">{{ formatNumber(post.views) }}</span>
+          </p>
+          <p class="text-[11px] font-black text-gray-600">
+            Fecha:
+            <span class="text-gray-900">{{ post.date ? post.date.split('T')[0].split('-').reverse().join('/') : 'Sin fecha' }}</span>
+          </p>
+        </div>
+
+        <!-- El contenedor h-12 y overflow-hidden aseguran que no se desborde, y line-clamp-3 le pone "..." al final -->
+        <div class="h-12 w-full overflow-hidden mb-4 relative">
+          <p class="text-xs text-gray-600 italic leading-tight line-clamp-3 break-words" :title="post.text">"{{ post.text || 'Sin texto' }}"</p>
+        </div>
 
         <label class="w-full bg-gray-800 text-white text-[11px] font-bold py-2 rounded-xl cursor-pointer hover:bg-black transition flex items-center justify-center">
           <span class="mr-2">
@@ -116,6 +148,7 @@
     if (t.includes('STORY')) return 'bg-orange-500 text-white'
     if (t.includes('REEL') || t.includes('VIDEO')) return 'bg-purple-600 text-white'
     if (t.includes('CAROUSEL') || t.includes('ALBUM')) return 'bg-teal-500 text-white'
+    if (t.includes('TWEET')) return 'bg-slate-700 text-white'
     return 'bg-blue-500 text-white'
   }
 
@@ -140,7 +173,34 @@
       const rawLi = Array.isArray(data.linkedin) ? data.linkedin : data.linkedin?.posts || data.linkedin?.topPosts || []
       const liPosts = rawLi.map(p => ({ ...p, red_social: 'linkedin' }))
 
-      const todos = [...fbPosts, ...igPosts, ...liPosts]
+      // 🚀 2. NUEVOS: Mapear TikTok
+      const rawTk = Array.isArray(data.tiktok?.posts) ? data.tiktok.posts : []
+      const tkPosts = rawTk.map(p => ({
+        id: p.id,
+        text: p.post_message || '',
+        type: p.media_type || 'VIDEO',
+        date: p.date,
+        views: p.video_views || 0,
+        link: p.permalink,
+        picture: p.picture || '',
+        red_social: 'tiktok',
+      }))
+
+      // 🚀 3. NUEVOS: Mapear X (Twitter)
+      const rawX = Array.isArray(data.x?.posts) ? data.x.posts : []
+      const xPosts = rawX.map(p => ({
+        id: p.id,
+        text: p.post_message || '',
+        type: p.media_type || 'TWEET',
+        date: p.date,
+        views: p.impressions || 0,
+        link: p.permalink,
+        picture: p.picture || '',
+        red_social: 'x',
+      }))
+
+      // 🚀 4. Unimos las 5 redes
+      const todos = [...fbPosts, ...igPosts, ...liPosts, ...tkPosts, ...xPosts]
 
       postsParaEditar.value = todos.map(p => ({
         id: p.id,
@@ -219,6 +279,15 @@
     } catch (error) {
       showToast(error.message, 'error')
     }
+  }
+
+  // Generador dinámico de imágenes de reemplazo según la red social
+  const getFallbackImage = redSocial => {
+    if (redSocial === 'x') return 'https://placehold.co/300x400/1e293b/ffffff?text=X+Sin+Imagen'
+    if (redSocial === 'tiktok') return 'https://placehold.co/300x400/000000/ffffff?text=TikTok+Sin+Imagen'
+    if (redSocial === 'linkedin') return 'https://placehold.co/300x400/0a66c2/ffffff?text=LinkedIn+Sin+Imagen'
+    if (redSocial === 'facebook') return 'https://placehold.co/300x400/1877F2/ffffff?text=Facebook+Sin+Imagen'
+    return 'https://placehold.co/300x400/ec4899/ffffff?text=IG+Sin+Imagen'
   }
 
   // 🚀 5. ¡LA PIEZA FALTANTE! Escuchar cuando cambias el mes en el admin

@@ -1,32 +1,51 @@
+const findKey = (row, keywords) => {
+  const keys = Object.keys(row)
+  return keys.find(k => keywords.some(kw => k.toLowerCase().includes(kw.toLowerCase())))
+}
+
+const getValNum = (row, keywords) => {
+  const key = findKey(row, keywords)
+  return key ? parseFloat(row[key]) || 0 : 0
+}
+
+const getValStr = (row, keywords) => {
+  const key = findKey(row, keywords)
+  return key ? String(row[key]) : ''
+}
+
 const parseXOverview = (results, periodo) => {
   let followers = []
-  let kpis = {
-    x_impressions: 0,
-    x_likes: 0,
-    x_reposts: 0,
-    x_replies: 0,
-    x_url_clicks: 0,
-  }
+  // 🚀 1. KPIs con totales y métricas de X
+  let kpis = { total_followers: 0, new_followers: 0, x_impressions: 0, x_likes: 0, x_reposts: 0, x_replies: 0, x_url_clicks: 0 }
 
   results.forEach(row => {
-    const fecha = row['Date (GMT)'] || row['Date']
-    const followersCount = parseInt(row['Seguidores (Daily aggregated...)'] || row['Followers'] || 0)
+    const fechaRaw = getValStr(row, ['date', 'fecha'])
+    const followersCount = getValNum(row, ['seguidores (daily', 'followers (daily'])
 
-    if (fecha && !isNaN(followersCount)) {
+    // 🚀 2. Filtro anti-basura (Ignoramos 'Total', 'N/A' y vacíos)
+    if (fechaRaw && !isNaN(followersCount) && !fechaRaw.toLowerCase().includes('total') && fechaRaw.toUpperCase() !== 'N/A') {
       followers.push({
         periodo,
         red_social: 'x',
-        fecha: fecha.split(' ')[0],
+        fecha: fechaRaw.split(' ')[0],
         followers: followersCount,
       })
     }
 
-    // Sumar KPIs Globales
-    kpis.x_impressions += parseInt(row['Impresiones de publicaciones (Daily...)'] || row['Impressions'] || 0)
-    kpis.x_likes += parseInt(row['Interacciones con publicaciones'] || row['Likes'] || 0) // Asumiendo que Hootsuite lo mezcla, ajusta según tu CSV
-    kpis.x_reposts += parseInt(row['Retweets'] || row['Reposts'] || 0)
-    kpis.x_replies += parseInt(row['Respuestas'] || row['Replies'] || 0)
-    kpis.x_url_clicks += parseInt(row['Clics en enlaces'] || row['URL Clicks'] || 0)
+    // 🚀 3. Extraemos Totales y Nuevos Seguidores
+    const currentTotal = getValNum(row, ['seguidores (overall', 'total followers'])
+    if (currentTotal > 0) kpis.total_followers = currentTotal
+
+    const currentNew = getValNum(row, ['nuevos seguidores netos', 'nuevos seguidores', 'new followers'])
+    if (currentNew !== 0 || kpis.new_followers === 0) kpis.new_followers = currentNew
+
+    // 🚀 4. Suma Iterativa de KPIs con traducciones exactas del CSV
+    kpis.x_impressions += getValNum(row, ['impresiones de publicaciones (daily', 'impressions'])
+
+    // Hootsuite mezcla Likes y Replies en X dentro de "Interacciones"
+    kpis.x_likes += getValNum(row, ['interacciones con publicaciones (daily', 'likes', 'me gusta'])
+    kpis.x_reposts += getValNum(row, ['publicar republicaciones (daily', 'retweets', 'reposts'])
+    kpis.x_url_clicks += getValNum(row, ['clics en enlaces de publicaciones (daily', 'url clicks'])
   })
 
   return { type: 'overview', followers, kpis }
@@ -36,24 +55,28 @@ const parseXPosts = (results, periodo) => {
   let posts = []
 
   results.forEach(row => {
-    const fechaStr = row['Date (GMT)'] || row['Date']
-    if (!fechaStr) return
+    const fechaRaw = getValStr(row, ['date', 'fecha'])
+
+    // 🚀 5. BLOQUEO DE ERRORES 500 (Filas basura como 'N/A')
+    if (!fechaRaw || fechaRaw.toLowerCase().includes('total') || fechaRaw.toUpperCase() === 'N/A') return
 
     posts.push({
       periodo,
-      date: fechaStr,
-      permalink: row['Tweet Permalink'] || row['Permalink'] || '',
-      post_message: row['Tweet Text'] || row['Post Message'] || '',
-      media_type: row['Media Type'] || 'Tweet',
-      tags: row['Tweet Tags'] || null,
-      campaign: row['Tweet Campaign'] || null,
-      impressions: parseInt(row['Impressions'] || 0),
-      reposts: parseInt(row['Retweets'] || row['Reposts'] || 0),
-      quote_tweets: parseInt(row['Quote Tweets'] || 0),
-      likes: parseInt(row['Likes'] || 0),
-      replies: parseInt(row['Replies'] || 0),
-      url_clicks: parseInt(row['URL Clicks'] || 0),
-      engagement_rate: parseFloat(row['Engagement Rate'] || 0).toFixed(2),
+      date: fechaRaw,
+      permalink: getValStr(row, ['tweet permalink', 'permalink', 'url']),
+      post_message: getValStr(row, ['tweet text', 'post message', 'mensaje']),
+      media_type: getValStr(row, ['media type', 'tipo']) || 'Tweet',
+      tags: getValStr(row, ['tweet tags', 'post tags', 'etiquetas']) || null,
+      campaign: getValStr(row, ['tweet campaign', 'post campaign', 'campaña']) || null,
+
+      // Métricas de la tabla de publicaciones
+      impressions: getValNum(row, ['impressions', 'impresiones']),
+      reposts: getValNum(row, ['retweets', 'reposts', 'republicaciones']),
+      quote_tweets: getValNum(row, ['quote tweets', 'citas']),
+      likes: getValNum(row, ['likes', 'me gusta']),
+      replies: getValNum(row, ['replies', 'respuestas']),
+      url_clicks: getValNum(row, ['url clicks', 'clics']),
+      engagement_rate: parseFloat(getValNum(row, ['engagement rate', 'engagement'])).toFixed(2),
     })
   })
 
