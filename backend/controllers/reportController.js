@@ -193,8 +193,8 @@ const getReportData = async (req, res) => {
       if (red === 'fb') defaultImg = 'https://placehold.co/300x400/a5d031/ffffff?text=Post+Sin+Imagen'
       else if (red === 'ig') defaultImg = 'https://placehold.co/300x400/d72d23/ffffff?text=IG+Sin+Imagen'
       else if (red === 'li') defaultImg = 'https://placehold.co/300x400/0e76a8/ffffff?text=LI+Sin+Imagen'
-      else if (red === 'tk') defaultImg = 'https://placehold.co/300x400/0e76a8/ffffff?text=TK+Sin+Imagen'
-      else if (red === 'x') defaultImg = 'https://placehold.co/300x400/0e76a8/ffffff?text=X+Sin+Imagen'
+      else if (red === 'tk') defaultImg = 'https://placehold.co/300x400/000000/ffffff?text=TK+Sin+Imagen'
+      else if (red === 'x') defaultImg = 'https://placehold.co/300x400/1e293b/ffffff?text=X+Sin+Imagen'
       else defaultImg = 'https://placehold.co/300x400/0e76a8/ffffff?text=Sin+Imagen'
 
       if (tipo.includes('STORY')) defaultImg = 'https://placehold.co/300x400/17ccf9/ffffff?text=IG+Story'

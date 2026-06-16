@@ -40,6 +40,7 @@
     <!-- <pre>{{ postsParaEditar }}</pre> -->
     <div v-if="postsParaEditar.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
       <div v-for="post in postsParaEditar" :key="post.id" class="bg-white border border-gray-200 p-4 rounded-2xl shadow-sm flex flex-col items-center text-center hover:shadow-md transition">
+        <!-- <pre>{{ post }}</pre> -->
         <!-- <div class="w-full h-40 bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center border border-gray-100">
           <img v-if="post.picture" :src="post.picture" @error="$event.target.src = 'https://placehold.co/300x400/17ccf9/ffffff?text=Story+Sin+Imagen'" class="w-full h-full object-cover" />
           <div v-else class="flex flex-col items-center text-gray-400">
@@ -48,8 +49,11 @@
           </div>
         </div> -->
         <!-- Contenedor de Imagen Inteligente -->
-        <div class="w-full h-40 bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center border border-gray-100">
+        <!-- <div class="w-full h-40 bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center border border-gray-100">
           <img :src="post.picture || getFallbackImage(post.red_social)" @error="$event.target.src = getFallbackImage(post.red_social)" class="w-full h-full object-cover transition hover:scale-105 duration-300" />
+        </div> -->
+        <div class="w-full h-40 bg-gray-100 rounded-xl mb-4 overflow-hidden flex items-center justify-center border border-gray-100">
+          <img :key="post.picture || 'fallback'" :src="post.picture || getFallbackImage(post.red_social)" @error="$event.target.src = getFallbackImage(post.red_social)" class="w-full h-full object-cover transition hover:scale-105 duration-300" />
         </div>
 
         <div class="mb-3 w-full">
@@ -287,7 +291,7 @@
     if (redSocial === 'tiktok') return 'https://placehold.co/300x400/000000/ffffff?text=TikTok+Sin+Imagen'
     if (redSocial === 'linkedin') return 'https://placehold.co/300x400/0a66c2/ffffff?text=LinkedIn+Sin+Imagen'
     if (redSocial === 'facebook') return 'https://placehold.co/300x400/1877F2/ffffff?text=Facebook+Sin+Imagen'
-    return 'https://placehold.co/300x400/ec4899/ffffff?text=IG+Sin+Imagen'
+    return 'https://placehold.co/300x400/808080/ffffff?text=Instagram+Sin+Imagen'
   }
 
   // 🚀 5. ¡LA PIEZA FALTANTE! Escuchar cuando cambias el mes en el admin

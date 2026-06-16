@@ -3,7 +3,7 @@
     <div class="w-full md:h-24 bg-black shrink-0 flex items-center justify-center shadow-inner p-4">
       <h2 class="text-4xl text-center font-black text-white tracking-widest uppercase">TikTok Metrics</h2>
     </div>
-    <!-- <pre>{{ data.kpis }}</pre> -->
+    <!-- <pre>{{ data }}</pre> -->
     <div class="flex-1 flex flex-col justify-start p-4 w-full">
       <div class="max-w-7xl mx-auto w-full">
         <div class="grid grid-cols-12 gap-4">

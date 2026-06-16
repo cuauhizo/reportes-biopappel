@@ -87,11 +87,17 @@ const processCsvUpload = async (req, res) => {
           await connection.query(`DELETE FROM ${tabla} WHERE periodo = ?`, [periodo])
 
           for (const row of results) {
+            const fechaRaw = row['DATE (GMT)'] || row['Date (GMT)'] || row['Date'] || ''
+
+            // 🚀 BLOQUEO MAESTRO ANTI-HOOTSUITE (Para FB, IG y LI)
+            if (!fechaRaw || fechaRaw.toUpperCase() === 'N/A' || fechaRaw.toLowerCase().includes('total')) continue
+
             const tipoPostStr = String(row['Post Type'] || row['Tipo de publicación'] || 'POST').toUpperCase()
             if (tipoPostStr.includes('ITEM')) continue // Ignorar carruseles hijos
 
             const mensaje = row['POST MESSAGE'] || row['Post Message'] || ''
             const tipoPost = row['POST TYPE'] || row['Post Type'] || ''
+            const fecha = fechaRaw // Ya sabemos que es una fecha válida
 
             if (mensaje || tipoPost.toUpperCase().includes('STORY')) {
               const id = generarIdEstable(row, prefijo, periodo)

@@ -6,17 +6,6 @@
     <!-- <pre>{{ data }}</pre> -->
     <div class="flex-1 flex flex-col justify-start p-4 w-full">
       <div class="max-w-7xl mx-auto w-full">
-        <div class="w-full">
-          <div class="max-w-7xl mx-auto py-4">
-            <div class="w-full h-48 bg-gray-200 rounded-2xl overflow-hidden relative border-x border-b border-gray-200">
-              <div v-if="data.coverImage" class="w-full h-full bg-cover bg-center bg-no-repeat" :style="{ backgroundImage: `url(${data.coverImage})` }"></div>
-              <div v-else class="w-full h-full flex items-center justify-center text-gray-400 bg-gray-800/10 text-center p-4">
-                <span class="font-bold uppercase tracking-widest italic opacity-50">Sin foto de portada registrada para este periodo</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div class="grid grid-cols-12 gap-4">
           <div class="col-span-12">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center h-full">
