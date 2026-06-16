@@ -190,14 +190,14 @@ const getReportData = async (req, res) => {
       const customImg = dbImages.find(img => img.post_id === p.id)
 
       let defaultImg
-      if (red === 'fb') defaultImg = 'https://placehold.co/300x400/a5d031/ffffff?text=Post+Sin+Imagen'
-      else if (red === 'ig') defaultImg = 'https://placehold.co/300x400/d72d23/ffffff?text=IG+Sin+Imagen'
-      else if (red === 'li') defaultImg = 'https://placehold.co/300x400/0e76a8/ffffff?text=LI+Sin+Imagen'
-      else if (red === 'tk') defaultImg = 'https://placehold.co/300x400/000000/ffffff?text=TK+Sin+Imagen'
+      if (red === 'fb') defaultImg = 'https://placehold.co/300x400/1877F2/ffffff?text=Facebook+Sin+Imagen'
+      else if (red === 'ig') defaultImg = 'https://placehold.co/300x400/ec4899/ffffff?text=IG+Sin+Imagen'
+      else if (red === 'li') defaultImg = 'https://placehold.co/300x400/0e76a8/ffffff?text=LinkedIn+Sin+Imagen'
+      else if (red === 'tk') defaultImg = 'https://placehold.co/300x400/000000/ffffff?text=TikTok+Sin+Imagen'
       else if (red === 'x') defaultImg = 'https://placehold.co/300x400/1e293b/ffffff?text=X+Sin+Imagen'
-      else defaultImg = 'https://placehold.co/300x400/0e76a8/ffffff?text=Sin+Imagen'
+      else defaultImg = 'https://placehold.co/300x400/64748b/ffffff?text=Sin+Imagen'
 
-      if (tipo.includes('STORY')) defaultImg = 'https://placehold.co/300x400/17ccf9/ffffff?text=IG+Story'
+      if (tipo.includes('STORY')) defaultImg = 'https://placehold.co/300x400/f97316/ffffff?text=Story+Sin+Imagen'
 
       return {
         id: p.id,
