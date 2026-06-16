@@ -156,11 +156,21 @@ const getReportData = async (req, res) => {
 
     const tkOverview = getSafeValue(20, [[{}]])[0][0] || {}
     const tkHistory = getSafeValue(21, [[]])[0].map(mapHistory)
-    const tkPostsRaw = getSafeValue(22, [[]])[0]
+    let tkPostsRaw = getSafeValue(22, [[]])[0]
 
     const xOverview = getSafeValue(23, [[{}]])[0][0] || {}
     const xHistory = getSafeValue(24, [[]])[0].map(mapHistory)
-    const xPostsRaw = getSafeValue(25, [[]])[0]
+    let xPostsRaw = getSafeValue(25, [[]])[0]
+
+    tkPostsRaw = tkPostsRaw.map(p => {
+      const customImg = dbImages.find(img => String(img.post_id) === String(p.id))
+      return { ...p, img: customImg ? customImg.image_url : null }
+    })
+
+    xPostsRaw = xPostsRaw.map(p => {
+      const customImg = dbImages.find(img => String(img.post_id) === String(p.id))
+      return { ...p, img: customImg ? customImg.image_url : null }
+    })
 
     // Calculadora de Porcentajes MoM
     const calcDiff = (curr, prev) => {

@@ -92,7 +92,7 @@
       interactions: (p.likes || 0) + (p.comments || 0) + (p.shares || 0),
       likes: p.likes || 0,
       shares: p.shares || 0,
-      picture: 'https://placehold.co/300x400/000000/ffffff?text=TikTok+Video',
+      img: p.img,
       text: p.post_message ? p.post_message.substring(0, 60) + '...' : 'Sin texto',
       date: p.date ? new Date(p.date).toISOString().split('T')[0] : 'Sin fecha',
       tags: p.tags || 'Sin etiqueta',

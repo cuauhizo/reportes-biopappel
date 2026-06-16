@@ -102,7 +102,7 @@
       interactions: (p.likes || 0) + (p.reposts || 0) + (p.replies || 0),
       likes: p.likes || 0,
       shares: p.reposts || 0,
-      picture: 'https://placehold.co/300x400/1f2937/ffffff?text=X+Tweet',
+      img: p.img,
       text: p.post_message ? p.post_message.substring(0, 60) + '...' : 'Sin texto',
       date: p.date ? new Date(p.date).toISOString().split('T')[0] : 'Sin fecha',
       tags: p.tags || 'Sin etiqueta',
