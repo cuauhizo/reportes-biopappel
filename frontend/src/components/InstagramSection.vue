@@ -12,7 +12,15 @@
                 <p class="text-gray-500 text-sm font-bold">Followers</p>
                 <div class="flex items-baseline gap-3 mt-1 justify-start">
                   <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.total_followers) }}</h2>
-                  <span v-if="data.kpis.followers_diff" class="flex items-center rounded-full py-0.5 px-2 text-xs font-bold mb-0.5 gap-1" :class="data.kpis.followers_diff.increase ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'">
+                  <!-- <span v-if="data.kpis.followers_diff" class="flex items-center rounded-full py-0.5 px-2 text-xs font-bold mb-0.5 gap-1" :class="data.kpis.followers_diff.increase ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'">
+                    <TrendingUp v-if="data.kpis.followers_diff.increase" class="w-4 h-4" />
+                    <TrendingDown v-else class="w-4 h-4" />
+                    {{ data.kpis.followers_diff.pct }}
+                  </span> -->
+                  <span
+                    v-if="data.kpis.followers_diff && (!config.general_hide_negative_diffs || data.kpis.followers_diff.increase)"
+                    class="flex items-center rounded-full py-0.5 px-2 text-xs font-bold mb-0.5 gap-1"
+                    :class="data.kpis.followers_diff.increase ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'">
                     <TrendingUp v-if="data.kpis.followers_diff.increase" class="w-4 h-4" />
                     <TrendingDown v-else class="w-4 h-4" />
                     {{ data.kpis.followers_diff.pct }}
@@ -55,8 +63,16 @@
                 <p class="text-gray-500 text-sm font-bold">Impressions</p>
                 <div class="flex items-baseline gap-3 mt-1 justify-start">
                   <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.post_impressions) }}</h2>
-                  <span
+                  <!-- <span
                     v-if="data.kpis.post_impressions_diff"
+                    class="flex items-center rounded-full py-0.5 px-2 text-xs font-bold mb-0.5 gap-1"
+                    :class="data.kpis.post_impressions_diff.increase ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'">
+                    <TrendingUp v-if="data.kpis.post_impressions_diff.increase" class="w-4 h-4" />
+                    <TrendingDown v-else class="w-4 h-4" />
+                    {{ data.kpis.post_impressions_diff.pct }}
+                  </span> -->
+                  <span
+                    v-if="data.kpis.post_impressions_diff && (!config.general_hide_negative_diffs || data.kpis.post_impressions_diff.increase)"
                     class="flex items-center rounded-full py-0.5 px-2 text-xs font-bold mb-0.5 gap-1"
                     :class="data.kpis.post_impressions_diff.increase ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'">
                     <TrendingUp v-if="data.kpis.post_impressions_diff.increase" class="w-4 h-4" />
@@ -69,7 +85,15 @@
                 <p class="text-gray-500 text-sm font-bold">News Followers</p>
                 <div class="flex items-baseline gap-3 mt-1 justify-start">
                   <h2 class="text-3xl font-black text-pluxeeBlue">{{ formatNumber(data.kpis.new_followers) }}</h2>
-                  <span v-if="data.kpis.new_followers_diff" class="flex items-center rounded-full py-0.5 px-2 text-xs font-bold mb-0.5 gap-1" :class="data.kpis.new_followers_diff.increase ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'">
+                  <!-- <span v-if="data.kpis.new_followers_diff" class="flex items-center rounded-full py-0.5 px-2 text-xs font-bold mb-0.5 gap-1" :class="data.kpis.new_followers_diff.increase ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'">
+                    <TrendingUp v-if="data.kpis.new_followers_diff.increase" class="w-4 h-4" />
+                    <TrendingDown v-else class="w-4 h-4" />
+                    {{ data.kpis.new_followers_diff.pct }}
+                  </span> -->
+                  <span
+                    v-if="data.kpis.new_followers_diff && (!config.general_hide_negative_diffs || data.kpis.new_followers_diff.increase)"
+                    class="flex items-center rounded-full py-0.5 px-2 text-xs font-bold mb-0.5 gap-1"
+                    :class="data.kpis.new_followers_diff.increase ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'">
                     <TrendingUp v-if="data.kpis.new_followers_diff.increase" class="w-4 h-4" />
                     <TrendingDown v-else class="w-4 h-4" />
                     {{ data.kpis.new_followers_diff.pct }}

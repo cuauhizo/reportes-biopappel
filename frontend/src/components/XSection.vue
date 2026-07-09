@@ -9,10 +9,10 @@
         <div class="grid grid-cols-12 gap-4">
           <div class="col-span-12">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center h-full">
-              <KpiCard title="Total followers" :value="formatNumber(data.kpis?.total_followers)" />
+              <KpiCard title="Total followers" :value="formatNumber(data.kpis?.total_followers)" :diff="data.kpis.followers_diff" :hideNegativeDiff="config.general_hide_negative_diffs === true" />
               <KpiCard title="Impressions" :value="formatNumber(data.kpis?.x_impressions)" />
               <KpiCard title="Reposts" :value="formatNumber(data.kpis?.x_reposts)" />
-              <KpiCard title="Engagement rate" :value="(data.kpis?.engagement_rate || 0) + '%'" />
+              <KpiCard title="Engagement rate" :value="(data.kpis?.engagement_rate || 0) + '%'" :diff="data.kpis.engagement_rate_diff" :hideNegativeDiff="config.general_hide_negative_diffs === true" />
               <KpiCard title="Likes" :value="formatNumber(data.kpis?.x_likes)" />
               <KpiCard title="Replies" :value="formatNumber(data.kpis?.x_replies)" />
               <KpiCard title="URL Clicks" :value="formatNumber(data.kpis?.x_url_clicks)" />

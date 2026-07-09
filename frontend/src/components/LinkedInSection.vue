@@ -20,8 +20,8 @@
         <div class="grid grid-cols-12 gap-4">
           <div class="col-span-12">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center h-full">
-              <KpiCard title="Total followers" :value="formatNumber(data.kpis.total_followers)" :diff="data.kpis.followers_diff" />
-              <KpiCard title="New followers" :value="formatNumber(data.kpis.net_new_followers)" :diff="data.kpis.net_new_followers_diff" />
+              <KpiCard title="Total followers" :value="formatNumber(data.kpis.total_followers)" :diff="data.kpis.followers_diff" :hideNegativeDiff="config.general_hide_negative_diffs === true" />
+              <KpiCard title="New followers" :value="formatNumber(data.kpis.net_new_followers)" :diff="data.kpis.net_new_followers_diff" :hideNegativeDiff="config.general_hide_negative_diffs === true" />
               <KpiCard title="Page views" :value="formatNumber(data.kpis.page_reach)" />
               <KpiCard title="Page engagement rate" :value="formatNumber(data.kpis.page_engagements_rate)" />
               <KpiCard title="Page comments" :value="formatNumber(data.kpis.page_comments)" />
@@ -29,9 +29,9 @@
               <KpiCard title="Page shares" :value="formatNumber(data.kpis.page_shares)" />
               <KpiCard title="Page interaction" :value="formatNumber(data.kpis.page_engagement)" />
               <KpiCard title="Posts" :value="formatNumber(data.kpis.posts)" />
-              <KpiCard title="Post engagement rate" :value="data.kpis.post_engagement_rate" :diff="data.kpis.post_engagement_rate_diff" />
+              <KpiCard title="Post engagement rate" :value="data.kpis.post_engagement_rate" :diff="data.kpis.post_engagement_rate_diff" :hideNegativeDiff="config.general_hide_negative_diffs === true" />
               <KpiCard title="Post comments" :value="formatNumber(data.kpis.post_comments)" />
-              <KpiCard title="Post reach" :value="formatNumber(data.kpis.post_reach)" :diff="data.kpis.post_reach_diff" />
+              <KpiCard title="Post reach" :value="formatNumber(data.kpis.post_reach)" :diff="data.kpis.post_reach_diff" :hideNegativeDiff="config.general_hide_negative_diffs === true" />
               <KpiCard v-if="config.li_show_post_reactions !== false" title="Post reactions" :value="formatNumber(data.kpis.post_reactions)" />
             </div>
           </div>

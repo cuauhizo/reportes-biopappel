@@ -8,13 +8,6 @@
       <div class="flex flex-col justify-between items-center mb-10 md:flex-row">
         <div>
           <h1 class="text-3xl mb-4 text-center font-black text-pluxeeBlue uppercase md:text-4xl md:text-start">Panel de Administración</h1>
-          <!-- <div class="fixed z-10 bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-200 flex items-center gap-3">
-            <CalendarRange class="w-8 h-8 text-pluxeePink" />
-            <div class="flex flex-col">
-              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Periodo a editar</span>
-              <input type="month" v-model="selectedPeriod" min="2026-01" :max="maxMonth" class="font-black text-pluxeePink outline-none bg-transparent cursor-pointer" />
-            </div>
-          </div> -->
         </div>
         <div class="flex gap-4">
           <button @click="cerrarSesion" class="bg-red-100 text-red-600 px-4 py-2 rounded-lg font-bold hover:bg-red-200 transition ml-2 flex items-center gap-2">

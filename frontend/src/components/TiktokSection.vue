@@ -3,17 +3,17 @@
     <div class="w-full md:h-24 bg-black shrink-0 flex items-center justify-center shadow-inner p-4">
       <h2 class="text-4xl text-center font-black text-white tracking-widest uppercase">TikTok Metrics</h2>
     </div>
-    <!-- <pre>{{ data }}</pre> -->
+    <!-- <pre>{{ data.kpis }}</pre> -->
     <div class="flex-1 flex flex-col justify-start p-4 w-full">
       <div class="max-w-7xl mx-auto w-full">
         <div class="grid grid-cols-12 gap-4">
           <div class="col-span-12">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center h-full">
-              <KpiCard title="Total followers" :value="formatNumber(data.kpis?.total_followers)" :diff="data.kpis?.followers_diff" />
-              <KpiCard title="New followers" :value="formatNumber(data.kpis?.new_followers)" :diff="data.kpis?.new_followers_diff" />
+              <KpiCard title="Total followers" :value="formatNumber(data.kpis?.total_followers)" :diff="data.kpis?.followers_diff" :hideNegativeDiff="config.general_hide_negative_diffs === true" />
+              <KpiCard title="New followers" :value="formatNumber(data.kpis?.new_followers)" :diff="data.kpis?.new_followers_diff" :hideNegativeDiff="config.general_hide_negative_diffs === true" />
               <KpiCard title="Video views" :value="formatNumber(data.kpis?.tk_video_views)" />
               <KpiCard title="Total likes" :value="formatNumber(data.kpis?.tk_likes)" />
-              <KpiCard title="Engagement rate" :value="(data.kpis?.engagement_rate || 0) + '%'" :diff="data.kpis?.engagement_rate_diff" />
+              <KpiCard title="Engagement rate" :value="(data.kpis?.engagement_rate || 0) + '%'" :diff="data.kpis?.engagement_rate_diff" :hideNegativeDiff="config.general_hide_negative_diffs === true" />
               <KpiCard title="Comments" :value="formatNumber(data.kpis?.tk_comments)" />
               <KpiCard title="Shares" :value="formatNumber(data.kpis?.tk_shares)" />
               <KpiCard title="Reach" :value="formatNumber(data.kpis?.tk_reach)" />

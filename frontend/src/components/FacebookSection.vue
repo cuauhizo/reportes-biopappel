@@ -21,17 +21,17 @@
           <div class="col-span-12 xl:col-span-9">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-center h-full">
               <KpiCard title="Page Engagement" :value="formatNumber(data.kpis.interactions)" />
-              <KpiCard title="Total followers" :value="formatNumber(data.kpis.total_followers)" :diff="data.kpis.followers_diff" />
+              <KpiCard title="Total followers" :value="formatNumber(data.kpis.total_followers)" :diff="data.kpis.followers_diff" :hideNegativeDiff="config.general_hide_negative_diffs === true" />
               <KpiCard title="Clicks organic Link" :value="formatNumber(data.kpis.clics)" />
               <KpiCard title="Post shares" :value="data.kpis.shares" />
               <KpiCard title="Responding" :value="data.kpis.responding" v-if="config.fb_show_responding !== false" />
-              <KpiCard title="Post engagement rate" :value="data.kpis.post_engagement_rate" :diff="data.kpis.post_engagement_rate_diff" />
-              <KpiCard title="Post impressions" :value="formatNumber(data.kpis.post_impressions)" :diff="data.kpis.post_impressions_diff" />
+              <KpiCard title="Post engagement rate" :value="data.kpis.post_engagement_rate" :diff="data.kpis.post_engagement_rate_diff" :hideNegativeDiff="config.general_hide_negative_diffs === true" />
+              <KpiCard title="Post impressions" :value="formatNumber(data.kpis.post_impressions)" :diff="data.kpis.post_impressions_diff" :hideNegativeDiff="config.general_hide_negative_diffs === true" />
               <KpiCard title="Response time" :value="data.kpis.response_time" v-if="config.fb_show_response_time !== false" />
               <KpiCard title="Page organic reach" :value="formatNumber(data.kpis.page_organic_reach)" />
               <KpiCard title="Views from non-followers" :value="formatNumber(data.kpis.page_no_followers_views)" />
               <KpiCard title="Views from followers" :value="formatNumber(data.kpis.page_followers_views)" />
-              <KpiCard title="New followers" :value="formatNumber(data.kpis.new_followers)" :diff="data.kpis.new_followers_diff" />
+              <KpiCard title="New followers" :value="formatNumber(data.kpis.new_followers)" :diff="data.kpis.new_followers_diff" :hideNegativeDiff="config.general_hide_negative_diffs === true" />
             </div>
           </div>
           <div v-if="config.fb_show_sentiment !== false" class="col-span-12 xl:col-span-3">
