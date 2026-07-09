@@ -103,7 +103,7 @@
 
       const opt = {
         margin: 0,
-        filename: `Reporte_Pluxee_${reportData.value?.metadata?.period || 'Mensual'}.pdf`,
+        filename: `Reporte_${reportData.value?.metadata?.period || 'Mensual'}.pdf`,
         image: { type: 'jpeg', quality: 0.95 },
         html2canvas: {
           scale: 2,
