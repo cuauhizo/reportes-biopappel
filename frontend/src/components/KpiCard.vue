@@ -9,11 +9,11 @@
           <TrendingDown v-else class="w-4 h-4" />
           {{ diff.pct }}
         </span> -->
-        <span v-if="diff && (!hideNegativeDiff || diff.increase)" class="flex items-center rounded-full py-0.5 px-2 text-xs font-bold mb-0.5 gap-1" :class="diff.increase ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'">
+        <!-- <span v-if="diff && (!hideNegativeDiff || diff.increase)" class="flex items-center rounded-full py-0.5 px-2 text-xs font-bold mb-0.5 gap-1" :class="diff.increase ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'">
           <TrendingUp v-if="diff.increase" class="w-4 h-4" />
           <TrendingDown v-else class="w-4 h-4" />
           {{ diff.pct }}
-        </span>
+        </span> -->
       </div>
     </div>
   </div>
