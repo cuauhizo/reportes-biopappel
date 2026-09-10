@@ -25,7 +25,7 @@
               <!-- <KpiCard title="Clicks organic Link" :value="formatNumber(data.kpis.clics)" /> -->
               <KpiCard title="Post shares" :value="data.kpis.shares" />
               <!-- <KpiCard title="Responding" :value="data.kpis.responding" v-if="config.fb_show_responding !== false" /> -->
-              <!-- <KpiCard title="Post engagement rate" :value="data.kpis.post_engagement_rate" :diff="data.kpis.post_engagement_rate_diff" :hideNegativeDiff="config.general_hide_negative_diffs === true" /> -->
+              <KpiCard title="Post engagement rate" :value="data.kpis.post_engagement_rate" :diff="data.kpis.post_engagement_rate_diff" :hideNegativeDiff="config.general_hide_negative_diffs === true" />
               <KpiCard title="Post impressions" :value="formatNumber(data.kpis.post_impressions)" :diff="data.kpis.post_impressions_diff" :hideNegativeDiff="config.general_hide_negative_diffs === true" />
               <!-- <KpiCard title="Response time" :value="data.kpis.response_time" v-if="config.fb_show_response_time !== false" /> -->
               <!-- <KpiCard title="Page organic reach" :value="formatNumber(data.kpis.page_organic_reach)" /> -->
