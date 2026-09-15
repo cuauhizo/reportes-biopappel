@@ -22,7 +22,7 @@
       </div>
       <div>
         <label class="text-[10px] font-bold text-gray-500 uppercase">Frecuencia</label>
-        <input v-model="nuevoComp.frequency" type="number" class="w-full border-2 border-gray-200 p-2 rounded-lg text-sm" :disabled="isSaving" />
+        <input v-model="nuevoComp.frequency" type="number" step="0.01" class="w-full border-2 border-gray-200 p-2 rounded-lg text-sm" :disabled="isSaving" />
       </div>
       <div>
         <label class="text-[10px] font-bold text-gray-500 uppercase">Interacción</label>
@@ -40,7 +40,7 @@
       <div class="flex items-center justify-center p-2 rounded-lg h-[38px]">
         <label class="text-[10px] font-bold text-pluxeeBlue uppercase flex items-center cursor-pointer">
           <input v-model="nuevoComp.is_main_brand" type="checkbox" class="mr-1" :disabled="isSaving" />
-          Biopappel?
+          Pluxee?
         </label>
       </div>
       <div>
@@ -80,13 +80,13 @@
               <input type="number" v-model="comp.posts_count" class="bg-transparent w-16 outline-none focus:text-pluxeeBlue border-b border-transparent focus:border-gray-300" @change="actualizarCompetidor(comp)" :disabled="isSaving" />
             </td>
             <td class="py-3 pr-2">
-              <input type="number" v-model="comp.frequency" class="bg-transparent w-16 outline-none focus:text-pluxeeBlue border-b border-transparent focus:border-gray-300" @change="actualizarCompetidor(comp)" :disabled="isSaving" />
+              <input type="number" step="0.01" v-model="comp.frequency" class="bg-transparent w-16 outline-none focus:text-pluxeeBlue border-b border-transparent focus:border-gray-300" @change="actualizarCompetidor(comp)" :disabled="isSaving" />
             </td>
             <td class="py-3 pr-2">
               <input type="number" step="0.01" v-model="comp.interaction" class="bg-transparent w-20 outline-none focus:text-pluxeeBlue border-b border-transparent focus:border-gray-300" @change="actualizarCompetidor(comp)" :disabled="isSaving" />
             </td>
             <td class="py-3 pr-2">
-              <input type="number" step="0.01" v-model="comp.followers" class="bg-transparent w-24 outline-none focus:text-pluxeeBlue border-b border-transparent focus:border-gray-300" @change="actualizarCompetidor(comp)" :disabled="isSaving" />
+              <input type="text" v-model="comp.followers" class="bg-transparent w-24 outline-none focus:text-pluxeeBlue border-b border-transparent focus:border-gray-300" @change="actualizarCompetidor(comp)" :disabled="isSaving" />
             </td>
             <td class="py-3 pr-2 font-bold flex items-center" :class="comp.gained_followers >= 0 ? 'text-green-600' : 'text-red-600'">
               <span v-if="comp.gained_followers > 0">+</span>

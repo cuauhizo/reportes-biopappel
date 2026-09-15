@@ -1,5 +1,9 @@
 const { pool } = require('../utils/db')
 
+// Funciones limpiadoras de comas
+const parseFloater = val => parseFloat(String(val).replace(/,/g, '')) || 0
+const parseInteger = val => parseInt(String(val).replace(/,/g, ''), 10) || 0
+
 // 1. OBTENER
 const getCompetitors = async (req, res) => {
   const { periodo } = req.query // El frontend enviará ?periodo=2026-03
@@ -23,7 +27,7 @@ const addCompetitor = async (req, res) => {
       `INSERT INTO benchmark_competitors 
       (brand_name, description, posts_count, frequency, interaction, followers, gained_followers, is_main_brand, periodo) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [brand_name, description || '', posts_count || 0, frequency || 0, interaction || 0, followers || 0, gained_followers || 0, is_main_brand || 0, periodo],
+      [brand_name, description || '', parseInteger(posts_count), parseFloater(frequency), parseFloater(interaction), parseInteger(followers), parseFloater(gained_followers), is_main_brand || 0, periodo],
     )
     res.json({ id: result.insertId, brand_name, description, posts_count, frequency, interaction, followers, gained_followers, is_main_brand, periodo })
   } catch (error) {
@@ -42,7 +46,7 @@ const updateCompetitor = async (req, res) => {
        SET brand_name=?, description=?, posts_count=?, frequency=?, 
            interaction=?, followers=?, gained_followers=?, is_main_brand=? 
        WHERE id=?`,
-      [brand_name, description, posts_count, frequency, interaction, followers, gained_followers, is_main_brand ? 1 : 0, id],
+      [brand_name, description || '', parseInteger(posts_count), parseFloater(frequency), parseFloater(interaction), parseInteger(followers), parseFloater(gained_followers), is_main_brand || 0, id],
     )
     res.json({ message: 'Competidor actualizado' })
   } catch (error) {
